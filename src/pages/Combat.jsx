@@ -285,6 +285,15 @@ function xpForCr(cr) {
   return found ? found.xp : 0;
 }
 
+// Aproximação comum entre mestres: CR inteiro ~ nível de personagem equivalente
+// para fins de limiar de XP. Frações de CR (1/8, 1/4, 1/2) contam como nível 1.
+function nivelEquivalenteFromCr(cr) {
+  const s = String(cr ?? "").trim();
+  if (!s || s.includes("/")) return 1;
+  const n = Number(s);
+  return Number.isFinite(n) ? Math.min(20, Math.max(1, Math.round(n))) : 1;
+}
+
 const DIFICULDADE_STYLE = {
   Trivial: "text-parchment-300/60 border-ink-600",
   "Fácil": "text-emerald-400 border-emerald-600",
@@ -295,12 +304,22 @@ const DIFICULDADE_STYLE = {
 
 function DifficultyCalculator({ players, npcs, bestiario, bestiarioCarregando }) {
   const [party, setParty] = useState([{ id: nextRowId(), nivel: 1, quantidade: 4 }]);
+  const [aliados, setAliados] = useState([]);
+  const [buscaAliado, setBuscaAliado] = useState("");
   const [inimigos, setInimigos] = useState([]);
   const [busca, setBusca] = useState("");
 
+  const personagensParaCalculo = useMemo(
+    () => [
+      ...party.map((r) => ({ nivel: r.nivel, quantidade: r.quantidade })),
+      ...aliados.map((r) => ({ nivel: r.nivelEquivalente, quantidade: r.quantidade })),
+    ],
+    [party, aliados]
+  );
+
   const resultado = useMemo(
-    () => calcularDificuldadeEncontro(party, inimigos),
-    [party, inimigos]
+    () => calcularDificuldadeEncontro(personagensParaCalculo, inimigos),
+    [personagensParaCalculo, inimigos]
   );
 
   function importarJogadores() {
@@ -326,6 +345,33 @@ function DifficultyCalculator({ players, npcs, bestiario, bestiarioCarregando })
   function removePartyRow(id) {
     setParty((prev) => prev.filter((r) => r.id !== id));
   }
+
+  function addAliadoRow(overrides = {}) {
+    setAliados((prev) => [...prev, { id: nextRowId(), nome: "", nivelEquivalente: 1, quantidade: 1, ...overrides }]);
+  }
+  function updateAliadoRow(id, patch) {
+    setAliados((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  }
+  function removeAliadoRow(id) {
+    setAliados((prev) => prev.filter((r) => r.id !== id));
+  }
+  function addAliadoFromNpc(npc) {
+    addAliadoRow({ nome: npc.nome, nivelEquivalente: nivelEquivalenteFromCr(npc.nd) });
+    setBuscaAliado("");
+  }
+  function addAliadoFromMonster(m) {
+    addAliadoRow({ nome: m.nome, nivelEquivalente: nivelEquivalenteFromCr(m.nd) });
+    setBuscaAliado("");
+  }
+
+  const buscaAliadoResultados = useMemo(() => {
+    const q = buscaAliado.trim().toLowerCase();
+    if (!q) return { npcs: [], monstros: [] };
+    return {
+      npcs: npcs.filter((n) => n.nome.toLowerCase().includes(q)).slice(0, 8),
+      monstros: (bestiario || []).filter((m) => m.nome.toLowerCase().includes(q)).slice(0, 8),
+    };
+  }, [buscaAliado, npcs, bestiario]);
 
   function addEnemyRow(overrides = {}) {
     setInimigos((prev) => [...prev, { id: nextRowId(), nome: "", xp: 0, quantidade: 1, ...overrides }]);
@@ -394,6 +440,60 @@ function DifficultyCalculator({ players, npcs, bestiario, bestiarioCarregando })
             ))}
           </div>
           <Button className="mt-2 w-full" onClick={addPartyRow}>+ Adicionar Nível</Button>
+
+          <div className="mt-4 pt-3 border-t border-ink-700">
+            <h3 className="text-sm font-display text-gold-400 mb-2">NPCs Aliados (opcional)</h3>
+            <div className="relative mb-2">
+              <TextInput
+                placeholder="Buscar NPC ou monstro para adicionar como aliado..."
+                value={buscaAliado}
+                onChange={setBuscaAliado}
+              />
+              {buscaAliado.trim() && (
+                <div className="absolute z-10 mt-1 card p-2 w-full max-h-56 overflow-y-auto">
+                  {bestiarioCarregando && <p className="text-xs text-parchment-300/40 py-1">Carregando bestiário...</p>}
+                  {buscaAliadoResultados.npcs.length === 0 && buscaAliadoResultados.monstros.length === 0 && !bestiarioCarregando && (
+                    <p className="text-xs text-parchment-300/40 py-1">Nenhum resultado.</p>
+                  )}
+                  {buscaAliadoResultados.npcs.map((n) => (
+                    <button key={n.id} onClick={() => addAliadoFromNpc(n)} className="block w-full text-left text-sm px-2 py-1 rounded hover:bg-ink-700">
+                      {n.nome} <span className="text-[10px] text-parchment-300/40">NPC{n.nd ? ` · ND ${n.nd}` : ""}</span>
+                    </button>
+                  ))}
+                  {buscaAliadoResultados.monstros.map((m) => (
+                    <button key={m.index} onClick={() => addAliadoFromMonster(m)} className="block w-full text-left text-sm px-2 py-1 rounded hover:bg-ink-700">
+                      {m.nome} <span className="text-[10px] text-parchment-300/40">ND {m.nd}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              {aliados.map((row) => (
+                <div key={row.id} className="flex items-center gap-1.5">
+                  <Field label="Nome" className="flex-1">
+                    <TextInput value={row.nome} onChange={(v) => updateAliadoRow(row.id, { nome: v })} />
+                  </Field>
+                  <Field label="Nível Equiv." className="w-20">
+                    <NumberInput
+                      value={row.nivelEquivalente}
+                      onChange={(v) => updateAliadoRow(row.id, { nivelEquivalente: Math.min(20, Math.max(1, v || 1)) })}
+                      className="text-center"
+                    />
+                  </Field>
+                  <Field label="Qtd." className="w-16">
+                    <NumberInput value={row.quantidade} onChange={(v) => updateAliadoRow(row.id, { quantidade: Math.max(0, v || 0) })} className="text-center" />
+                  </Field>
+                  <Button variant="danger" className="!mt-4" onClick={() => removeAliadoRow(row.id)}>✕</Button>
+                </div>
+              ))}
+              {aliados.length === 0 && <p className="text-xs text-parchment-300/40">Nenhum aliado adicionado.</p>}
+            </div>
+            <Button className="mt-2 w-full" onClick={() => addAliadoRow()}>+ Adicionar Aliado Manual</Button>
+            <p className="text-[10px] text-parchment-300/30 mt-2">
+              Aliados entram no cálculo como "personagens extras": somam ao limiar de XP do grupo e ao tamanho do grupo (que ajusta o multiplicador). O nível equivalente é sugerido a partir do ND do NPC/monstro — ajuste livremente.
+            </p>
+          </div>
         </div>
 
         {/* Inimigos */}
