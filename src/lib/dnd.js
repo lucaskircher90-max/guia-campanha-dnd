@@ -113,3 +113,87 @@ export const ITEM_TYPES = [
   "Arma", "Armadura", "Escudo", "Item Maravilhoso", "Poção", "Pergaminho",
   "Anel", "Bastão", "Cajado", "Varinha", "Equipamento de Aventura", "Ferramenta", "Outro",
 ];
+
+// Tabela oficial do DMG (5ª Ed.) — Limiares de XP por Nível de Personagem
+// Índice 0 = nível 1 ... índice 19 = nível 20
+export const XP_THRESHOLDS = [
+  { facil: 25, medio: 50, dificil: 75, mortal: 100 },
+  { facil: 50, medio: 100, dificil: 150, mortal: 200 },
+  { facil: 75, medio: 150, dificil: 225, mortal: 400 },
+  { facil: 125, medio: 250, dificil: 375, mortal: 500 },
+  { facil: 250, medio: 500, dificil: 750, mortal: 1100 },
+  { facil: 300, medio: 600, dificil: 900, mortal: 1400 },
+  { facil: 350, medio: 750, dificil: 1100, mortal: 1700 },
+  { facil: 450, medio: 900, dificil: 1400, mortal: 2100 },
+  { facil: 550, medio: 1100, dificil: 1600, mortal: 2400 },
+  { facil: 600, medio: 1200, dificil: 1900, mortal: 2800 },
+  { facil: 800, medio: 1600, dificil: 2400, mortal: 3600 },
+  { facil: 1000, medio: 2000, dificil: 3000, mortal: 4500 },
+  { facil: 1100, medio: 2200, dificil: 3400, mortal: 5100 },
+  { facil: 1250, medio: 2500, dificil: 3800, mortal: 5700 },
+  { facil: 1400, medio: 2800, dificil: 4300, mortal: 6400 },
+  { facil: 1600, medio: 3200, dificil: 4800, mortal: 7200 },
+  { facil: 2000, medio: 3900, dificil: 5900, mortal: 8800 },
+  { facil: 2100, medio: 4200, dificil: 6300, mortal: 9500 },
+  { facil: 2400, medio: 4900, dificil: 7300, mortal: 10900 },
+  { facil: 2800, medio: 5700, dificil: 8500, mortal: 12700 },
+];
+
+// Multiplicador de XP do encontro pela quantidade de inimigos (DMG, pg. 82)
+const ENCOUNTER_MULTIPLIERS = [1, 1.5, 2, 2.5, 3, 4];
+
+function multiplierIndexForCount(count) {
+  if (count <= 1) return 0;
+  if (count === 2) return 1;
+  if (count <= 6) return 2;
+  if (count <= 10) return 3;
+  if (count <= 14) return 4;
+  return 5;
+}
+
+// linhas: [{ nivel, quantidade }]
+export function partyXpThresholds(linhas) {
+  const totais = { facil: 0, medio: 0, dificil: 0, mortal: 0 };
+  let totalPersonagens = 0;
+  for (const { nivel, quantidade } of linhas) {
+    const lvl = Math.min(20, Math.max(1, Number(nivel) || 1));
+    const qtd = Math.max(0, Number(quantidade) || 0);
+    const t = XP_THRESHOLDS[lvl - 1];
+    totais.facil += t.facil * qtd;
+    totais.medio += t.medio * qtd;
+    totais.dificil += t.dificil * qtd;
+    totais.mortal += t.mortal * qtd;
+    totalPersonagens += qtd;
+  }
+  return { totais, totalPersonagens };
+}
+
+// linhas: [{ xp, quantidade }]
+export function calcularDificuldadeEncontro(personagens, inimigos) {
+  const { totais, totalPersonagens } = partyXpThresholds(personagens);
+
+  let xpTotalInimigos = 0;
+  let totalInimigos = 0;
+  for (const { xp, quantidade } of inimigos) {
+    const qtd = Math.max(0, Number(quantidade) || 0);
+    xpTotalInimigos += (Number(xp) || 0) * qtd;
+    totalInimigos += qtd;
+  }
+
+  let idx = multiplierIndexForCount(totalInimigos);
+  if (totalPersonagens > 0 && totalPersonagens < 3) idx = Math.min(idx + 1, ENCOUNTER_MULTIPLIERS.length - 1);
+  else if (totalPersonagens >= 6) idx = Math.max(idx - 1, 0);
+  const multiplicador = totalInimigos > 0 ? ENCOUNTER_MULTIPLIERS[idx] : 0;
+
+  const xpAjustado = Math.round(xpTotalInimigos * multiplicador);
+
+  let dificuldade = "Trivial";
+  if (xpAjustado >= totais.mortal && totais.mortal > 0) dificuldade = "Mortal";
+  else if (xpAjustado >= totais.dificil && totais.dificil > 0) dificuldade = "Difícil";
+  else if (xpAjustado >= totais.medio && totais.medio > 0) dificuldade = "Médio";
+  else if (xpAjustado >= totais.facil && totais.facil > 0) dificuldade = "Fácil";
+
+  return {
+    totais, totalPersonagens, xpTotalInimigos, totalInimigos, multiplicador, xpAjustado, dificuldade,
+  };
+}

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useData } from "../context/DataContext";
 import { Button, Card, ConfirmButton, Field, NumberInput, TextInput } from "../components/ui";
 import { newCombatant } from "../lib/models";
-import { abilityMod, CONDITIONS } from "../lib/dnd";
+import { abilityMod, CONDITIONS, CR_TABLE, calcularDificuldadeEncontro } from "../lib/dnd";
 
 export default function Combat() {
   const { encounter, setEncounter, players, npcs, addNpc } = useData();
@@ -12,6 +12,7 @@ export default function Combat() {
   const [bestiario, setBestiario] = useState(null);
   const [bestiarioCarregando, setBestiarioCarregando] = useState(false);
   const [salvos, setSalvos] = useState({});
+  const [calcAberta, setCalcAberta] = useState(false);
 
   const combatentesOrdenados = [...encounter.combatentes].sort((a, b) => b.iniciativa - a.iniciativa);
 
@@ -177,6 +178,21 @@ export default function Combat() {
           )}
         </div>
 
+        <Button
+          variant={calcAberta ? "primary" : "default"}
+          onClick={() => {
+            setCalcAberta((v) => !v);
+            if (!bestiario && !bestiarioCarregando) {
+              setBestiarioCarregando(true);
+              import("../data/monsters.json")
+                .then((mod) => setBestiario(mod.default))
+                .finally(() => setBestiarioCarregando(false));
+            }
+          }}
+        >
+          🧮 Calculadora de Dificuldade
+        </Button>
+
         <div className="relative">
           <Button onClick={abrirBestiario}>🐉 Bestiário (SRD)</Button>
           {bestiarioAberto && (
@@ -224,6 +240,15 @@ export default function Combat() {
         </div>
       </div>
 
+      {calcAberta && (
+        <DifficultyCalculator
+          players={players}
+          npcs={npcs}
+          bestiario={bestiario}
+          bestiarioCarregando={bestiarioCarregando}
+        />
+      )}
+
       {combatentesOrdenados.length === 0 ? (
         <Card>
           <p className="text-parchment-300/60 text-sm">Nenhum combatente. Adicione jogadores, NPCs ou combatentes avulsos para começar o combate.</p>
@@ -247,6 +272,212 @@ export default function Combat() {
 
 function rollD20() {
   return 1 + Math.floor(Math.random() * 20);
+}
+
+let calcRowSeq = 0;
+function nextRowId() {
+  calcRowSeq += 1;
+  return `row-${calcRowSeq}`;
+}
+
+function xpForCr(cr) {
+  const found = CR_TABLE.find((r) => r.cr === String(cr ?? "").trim());
+  return found ? found.xp : 0;
+}
+
+const DIFICULDADE_STYLE = {
+  Trivial: "text-parchment-300/60 border-ink-600",
+  "Fácil": "text-emerald-400 border-emerald-600",
+  "Médio": "text-gold-400 border-gold-600",
+  "Difícil": "text-orange-400 border-orange-600",
+  Mortal: "text-blood-500 border-blood-500",
+};
+
+function DifficultyCalculator({ players, npcs, bestiario, bestiarioCarregando }) {
+  const [party, setParty] = useState([{ id: nextRowId(), nivel: 1, quantidade: 4 }]);
+  const [inimigos, setInimigos] = useState([]);
+  const [busca, setBusca] = useState("");
+
+  const resultado = useMemo(
+    () => calcularDificuldadeEncontro(party, inimigos),
+    [party, inimigos]
+  );
+
+  function importarJogadores() {
+    if (players.length === 0) return;
+    const porNivel = {};
+    for (const pc of players) {
+      const nivel = Math.min(20, Math.max(1, Number(pc.nivel) || 1));
+      porNivel[nivel] = (porNivel[nivel] || 0) + 1;
+    }
+    setParty(
+      Object.entries(porNivel)
+        .sort((a, b) => Number(a[0]) - Number(b[0]))
+        .map(([nivel, quantidade]) => ({ id: nextRowId(), nivel: Number(nivel), quantidade }))
+    );
+  }
+
+  function addPartyRow() {
+    setParty((prev) => [...prev, { id: nextRowId(), nivel: 1, quantidade: 1 }]);
+  }
+  function updatePartyRow(id, patch) {
+    setParty((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  }
+  function removePartyRow(id) {
+    setParty((prev) => prev.filter((r) => r.id !== id));
+  }
+
+  function addEnemyRow(overrides = {}) {
+    setInimigos((prev) => [...prev, { id: nextRowId(), nome: "", xp: 0, quantidade: 1, ...overrides }]);
+  }
+  function updateEnemyRow(id, patch) {
+    setInimigos((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  }
+  function removeEnemyRow(id) {
+    setInimigos((prev) => prev.filter((r) => r.id !== id));
+  }
+
+  function addEnemyFromNpc(npc) {
+    addEnemyRow({ nome: npc.nome, xp: Number(npc.pe) || xpForCr(npc.nd) });
+    setBusca("");
+  }
+  function addEnemyFromMonster(m) {
+    addEnemyRow({ nome: m.nome, xp: Number(m.pe) || xpForCr(m.nd) });
+    setBusca("");
+  }
+
+  const buscaResultados = useMemo(() => {
+    const q = busca.trim().toLowerCase();
+    if (!q) return { npcs: [], monstros: [] };
+    return {
+      npcs: npcs.filter((n) => n.nome.toLowerCase().includes(q)).slice(0, 8),
+      monstros: (bestiario || []).filter((m) => m.nome.toLowerCase().includes(q)).slice(0, 8),
+    };
+  }, [busca, npcs, bestiario]);
+
+  const chipClass = DIFICULDADE_STYLE[resultado.dificuldade] || DIFICULDADE_STYLE.Trivial;
+
+  return (
+    <Card title="Calculadora de Dificuldade do Encontro">
+      <p className="text-xs text-parchment-300/50 mb-3">
+        Baseado nas tabelas oficiais do Manual do Mestre (limiares de XP por nível e multiplicador por quantidade de inimigos).
+      </p>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Grupo */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-display text-gold-400">Grupo de Jogadores</h3>
+            <Button className="!text-xs !px-2 !py-1" onClick={importarJogadores} disabled={players.length === 0}>
+              Importar Jogadores
+            </Button>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {party.map((row) => (
+              <div key={row.id} className="flex items-center gap-1.5">
+                <Field label="Nível" className="w-20">
+                  <NumberInput
+                    value={row.nivel}
+                    onChange={(v) => updatePartyRow(row.id, { nivel: Math.min(20, Math.max(1, v || 1)) })}
+                    className="text-center"
+                  />
+                </Field>
+                <Field label="Qtd. Personagens" className="flex-1">
+                  <NumberInput
+                    value={row.quantidade}
+                    onChange={(v) => updatePartyRow(row.id, { quantidade: Math.max(0, v || 0) })}
+                    className="text-center"
+                  />
+                </Field>
+                <Button variant="danger" className="!mt-4" onClick={() => removePartyRow(row.id)}>✕</Button>
+              </div>
+            ))}
+          </div>
+          <Button className="mt-2 w-full" onClick={addPartyRow}>+ Adicionar Nível</Button>
+        </div>
+
+        {/* Inimigos */}
+        <div>
+          <h3 className="text-sm font-display text-gold-400 mb-2">Inimigos</h3>
+          <div className="relative mb-2">
+            <TextInput
+              placeholder="Buscar NPC ou monstro do bestiário para adicionar..."
+              value={busca}
+              onChange={setBusca}
+            />
+            {busca.trim() && (
+              <div className="absolute z-10 mt-1 card p-2 w-full max-h-56 overflow-y-auto">
+                {bestiarioCarregando && <p className="text-xs text-parchment-300/40 py-1">Carregando bestiário...</p>}
+                {buscaResultados.npcs.length === 0 && buscaResultados.monstros.length === 0 && !bestiarioCarregando && (
+                  <p className="text-xs text-parchment-300/40 py-1">Nenhum resultado.</p>
+                )}
+                {buscaResultados.npcs.map((n) => (
+                  <button key={n.id} onClick={() => addEnemyFromNpc(n)} className="block w-full text-left text-sm px-2 py-1 rounded hover:bg-ink-700">
+                    {n.nome} <span className="text-[10px] text-parchment-300/40">NPC{n.nd ? ` · ND ${n.nd}` : ""}</span>
+                  </button>
+                ))}
+                {buscaResultados.monstros.map((m) => (
+                  <button key={m.index} onClick={() => addEnemyFromMonster(m)} className="block w-full text-left text-sm px-2 py-1 rounded hover:bg-ink-700">
+                    {m.nome} <span className="text-[10px] text-parchment-300/40">ND {m.nd}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {inimigos.map((row) => (
+              <div key={row.id} className="flex items-center gap-1.5">
+                <Field label="Nome" className="flex-1">
+                  <TextInput value={row.nome} onChange={(v) => updateEnemyRow(row.id, { nome: v })} />
+                </Field>
+                <Field label="XP" className="w-20">
+                  <NumberInput value={row.xp} onChange={(v) => updateEnemyRow(row.id, { xp: Math.max(0, v || 0) })} className="text-center" />
+                </Field>
+                <Field label="Qtd." className="w-16">
+                  <NumberInput value={row.quantidade} onChange={(v) => updateEnemyRow(row.id, { quantidade: Math.max(0, v || 0) })} className="text-center" />
+                </Field>
+                <Button variant="danger" className="!mt-4" onClick={() => removeEnemyRow(row.id)}>✕</Button>
+              </div>
+            ))}
+            {inimigos.length === 0 && <p className="text-xs text-parchment-300/40">Nenhum inimigo adicionado ainda.</p>}
+          </div>
+          <Button className="mt-2 w-full" onClick={() => addEnemyRow()}>+ Adicionar Inimigo Manual</Button>
+        </div>
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-ink-700">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className={`px-4 py-2 rounded border text-center ${chipClass}`}>
+            <div className="text-[10px] uppercase tracking-wide opacity-70">Dificuldade</div>
+            <div className="font-display text-xl">{resultado.dificuldade}</div>
+          </div>
+          <div className="text-xs text-parchment-300/60 flex flex-col gap-0.5">
+            <span>XP dos inimigos: <b className="text-parchment-100">{resultado.xpTotalInimigos}</b> ({resultado.totalInimigos} inimigo{resultado.totalInimigos === 1 ? "" : "s"})</span>
+            <span>Multiplicador (qtd. de inimigos × tamanho do grupo): <b className="text-parchment-100">×{resultado.multiplicador}</b></span>
+            <span>XP ajustado do encontro: <b className="text-parchment-100">{resultado.xpAjustado}</b> — comparado ao grupo de {resultado.totalPersonagens} {resultado.totalPersonagens === 1 ? "personagem" : "personagens"}</span>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2 mt-3">
+          {["facil", "medio", "dificil", "mortal"].map((key) => {
+            const labels = { facil: "Fácil", medio: "Médio", dificil: "Difícil", mortal: "Mortal" };
+            const ativo =
+              (key === "facil" && resultado.dificuldade === "Fácil") ||
+              (key === "medio" && resultado.dificuldade === "Médio") ||
+              (key === "dificil" && resultado.dificuldade === "Difícil") ||
+              (key === "mortal" && resultado.dificuldade === "Mortal");
+            return (
+              <span
+                key={key}
+                className={`text-[10px] px-2 py-1 rounded-full border ${ativo ? "bg-ink-700 border-gold-500 text-gold-400" : "border-ink-600 text-parchment-300/40"}`}
+              >
+                {labels[key]}: {resultado.totais[key]} XP
+              </span>
+            );
+          })}
+        </div>
+      </div>
+    </Card>
+  );
 }
 
 function CombatantRow({ combatant: c, isCurrent, onUpdate, onRemove }) {
