@@ -158,3 +158,33 @@ export function newEncounter(overrides = {}) {
     ...overrides,
   };
 }
+
+export function newItem(overrides = {}) {
+  return {
+    id: id(),
+    createdAt: Date.now(),
+    nome: "Novo Item",
+    tipo: "Item Maravilhoso",
+    raridade: "",
+    requerSintonizacao: false,
+    custo: "",
+    peso: "",
+    propriedades: "",
+    descricao: "",
+    imagemUrl: "",
+    homebrew: true,
+    ...overrides,
+  };
+}
+
+export function newMapEntry(overrides = {}) {
+  return {
+    id: id(),
+    createdAt: Date.now(),
+    nome: "Novo Mapa",
+    local: "",
+    notas: "",
+    imagemDataUrl: "",
+    ...overrides,
+  };
+}

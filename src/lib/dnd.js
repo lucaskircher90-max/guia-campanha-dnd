@@ -106,3 +106,10 @@ export const DAMAGE_TYPES = [
 export function emptyAbilities(base = 10) {
   return { for: base, des: base, con: base, int: base, sab: base, car: base };
 }
+
+export const ITEM_RARITIES = ["Comum", "Incomum", "Raro", "Muito Raro", "Lendário", "Artefato"];
+
+export const ITEM_TYPES = [
+  "Arma", "Armadura", "Escudo", "Item Maravilhoso", "Poção", "Pergaminho",
+  "Anel", "Bastão", "Cajado", "Varinha", "Equipamento de Aventura", "Ferramenta", "Outro",
+];

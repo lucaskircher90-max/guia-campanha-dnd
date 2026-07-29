@@ -9,6 +9,9 @@ import NpcSheet from "./pages/NpcSheet";
 import NpcGenerator from "./pages/NpcGenerator";
 import Story from "./pages/Story";
 import Combat from "./pages/Combat";
+import ItemsList from "./pages/ItemsList";
+import ItemSheet from "./pages/ItemSheet";
+import MapsList from "./pages/MapsList";
 
 export default function App() {
   return (
@@ -24,6 +27,9 @@ export default function App() {
             <Route path="/gerador-npc" element={<NpcGenerator />} />
             <Route path="/historia" element={<Story />} />
             <Route path="/combate" element={<Combat />} />
+            <Route path="/itens" element={<ItemsList />} />
+            <Route path="/itens/:id" element={<ItemSheet />} />
+            <Route path="/mapas" element={<MapsList />} />
           </Route>
         </Routes>
       </HashRouter>
