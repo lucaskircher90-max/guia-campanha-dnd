@@ -2,24 +2,28 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { Button, Card } from "../components/ui";
-import { generateRandomNpc } from "../lib/npcGenerator";
+import { generateRandomNpc, RACAS, CLASSES, FUNCOES } from "../lib/npcGenerator";
 
 export default function NpcGenerator() {
   const { addNpc } = useData();
   const navigate = useNavigate();
+  const [raca, setRaca] = useState("");
+  const [classe, setClasse] = useState("");
+  const [funcao, setFuncao] = useState("");
   const [current, setCurrent] = useState(() => generateRandomNpc());
   const [historico, setHistorico] = useState([]);
 
   function gerar() {
     setHistorico((prev) => [current, ...prev].slice(0, 8));
-    setCurrent(generateRandomNpc());
+    setCurrent(generateRandomNpc({ raca, classe, funcao }));
   }
 
   function salvarComoNpc(dados) {
+    const tipoPartes = [dados.raca, dados.classe].filter(Boolean).join(" ");
     const npc = addNpc({
       nome: dados.nome,
-      tipoTamanhoAlinhamento: `${dados.raca}, ${dados.ocupacao}`,
-      descricao: `${dados.ocupacao}. ${dados.traco}\n\nMotivação: ${dados.motivacao}\n\nGancho de aventura: ${dados.gancho}`,
+      tipoTamanhoAlinhamento: `${tipoPartes}, ${dados.ocupacao}`,
+      descricao: `${dados.ocupacao}${dados.funcao ? ` (${dados.funcao})` : ""}. ${dados.traco}\n\nMotivação: ${dados.motivacao}\n\nGancho de aventura: ${dados.gancho}`,
       importante: false,
     });
     navigate(`/npcs/${npc.id}`);
@@ -32,9 +36,17 @@ export default function NpcGenerator() {
         <Button variant="gold" onClick={gerar}>🎲 Gerar Novo</Button>
       </div>
 
+      <Card title="Filtros Rápidos" className="max-w-2xl">
+        <FilterRow label="Raça" options={RACAS} value={raca} onChange={setRaca} />
+        <FilterRow label="Classe" options={CLASSES} value={classe} onChange={setClasse} className="mt-3" />
+        <FilterRow label="Função" options={FUNCOES} value={funcao} onChange={setFuncao} className="mt-3" />
+      </Card>
+
       <Card className="max-w-2xl">
         <h3 className="font-display text-xl text-parchment-50 mb-1">{current.nome}</h3>
-        <p className="text-sm text-parchment-300/60 mb-3">{current.raca} · {current.ocupacao}</p>
+        <p className="text-sm text-parchment-300/60 mb-3">
+          {current.raca}{current.classe ? ` ${current.classe}` : ""} · {current.ocupacao}
+        </p>
         <dl className="flex flex-col gap-2 text-sm">
           <Row label="Traço de Personalidade" value={current.traco} />
           <Row label="Motivação" value={current.motivacao} />
@@ -53,7 +65,7 @@ export default function NpcGenerator() {
               <div key={i} className="flex items-center justify-between text-sm border-b border-ink-700 pb-1.5">
                 <div>
                   <span className="text-parchment-50">{n.nome}</span>
-                  <span className="text-parchment-300/50"> — {n.raca}, {n.ocupacao}</span>
+                  <span className="text-parchment-300/50"> — {n.raca}{n.classe ? ` ${n.classe}` : ""}, {n.ocupacao}</span>
                 </div>
                 <Button onClick={() => salvarComoNpc(n)}>Salvar</Button>
               </div>
@@ -61,6 +73,35 @@ export default function NpcGenerator() {
           </div>
         </Card>
       )}
+    </div>
+  );
+}
+
+function FilterRow({ label, options, value, onChange, className = "" }) {
+  return (
+    <div className={className}>
+      <span className="text-xs uppercase tracking-wide text-parchment-300/50 block mb-1.5">{label}</span>
+      <div className="flex flex-wrap gap-1.5">
+        <button
+          onClick={() => onChange("")}
+          className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
+            value === "" ? "bg-gold-600 border-gold-600 text-ink-950 font-semibold" : "border-ink-600 text-parchment-300/60 hover:text-parchment-100"
+          }`}
+        >
+          Aleatório
+        </button>
+        {options.map((opt) => (
+          <button
+            key={opt}
+            onClick={() => onChange(opt)}
+            className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
+              value === opt ? "bg-gold-600 border-gold-600 text-ink-950 font-semibold" : "border-ink-600 text-parchment-300/60 hover:text-parchment-100"
+            }`}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

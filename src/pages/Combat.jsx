@@ -1,11 +1,14 @@
 import { useMemo, useState } from "react";
 import { useData } from "../context/DataContext";
 import { Button, Card, ConfirmButton, Field, NumberInput, TextInput } from "../components/ui";
-import { newCombatant } from "../lib/models";
+import { newCombatant, newEncounterTemplateCombatant } from "../lib/models";
 import { abilityMod, CONDITIONS, CR_TABLE, calcularDificuldadeEncontro } from "../lib/dnd";
 
 export default function Combat() {
-  const { encounter, setEncounter, players, npcs, addNpc } = useData();
+  const {
+    encounter, setEncounter, players, npcs, addNpc,
+    encounterTemplates, addEncounterTemplate, removeEncounterTemplate,
+  } = useData();
   const [pickerAberto, setPickerAberto] = useState(false);
   const [bestiarioAberto, setBestiarioAberto] = useState(false);
   const [bestiarioBusca, setBestiarioBusca] = useState("");
@@ -13,6 +16,10 @@ export default function Combat() {
   const [bestiarioCarregando, setBestiarioCarregando] = useState(false);
   const [salvos, setSalvos] = useState({});
   const [calcAberta, setCalcAberta] = useState(false);
+  const [salvarFormAberto, setSalvarFormAberto] = useState(false);
+  const [salvarNome, setSalvarNome] = useState("");
+  const [salvarDescricao, setSalvarDescricao] = useState("");
+  const [templatesAberto, setTemplatesAberto] = useState(false);
 
   const combatentesOrdenados = [...encounter.combatentes].sort((a, b) => b.iniciativa - a.iniciativa);
 
@@ -130,6 +137,47 @@ export default function Combat() {
     }));
   }
 
+  function salvarEncontroAtual() {
+    const combatentesMolde = encounter.combatentes.map((c) => {
+      const source = c.tipo === "pj" ? players.find((p) => p.id === c.sourceId) : npcs.find((n) => n.id === c.sourceId);
+      const dex = source?.atributos?.des ?? 10;
+      return newEncounterTemplateCombatant({
+        nome: c.nome,
+        tipo: c.tipo,
+        ca: c.ca,
+        pvMax: c.pvMax,
+        iniciativaMod: abilityMod(dex),
+        notas: c.notas,
+        sourceId: c.sourceId,
+      });
+    });
+    addEncounterTemplate({
+      nome: salvarNome.trim() || "Encontro sem nome",
+      descricao: salvarDescricao.trim(),
+      combatentes: combatentesMolde,
+    });
+    setSalvarNome("");
+    setSalvarDescricao("");
+    setSalvarFormAberto(false);
+  }
+
+  function carregarTemplate(template) {
+    const novos = template.combatentes.map((tc) =>
+      newCombatant({
+        nome: tc.nome,
+        tipo: tc.tipo,
+        ca: tc.ca,
+        pvMax: tc.pvMax,
+        pvAtual: tc.pvMax,
+        iniciativa: rollD20() + (Number(tc.iniciativaMod) || 0),
+        notas: tc.notas,
+        sourceId: tc.sourceId,
+      })
+    );
+    setEncounter({ id: encounter.id, nome: template.nome, rodada: 1, turnoAtual: 0, combatentes: novos });
+    setTemplatesAberto(false);
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
@@ -140,9 +188,38 @@ export default function Combat() {
         <div className="flex gap-2 flex-wrap">
           <Button onClick={rolarTodasIniciativas}>🎲 Rolar Iniciativas</Button>
           <Button onClick={proximoTurno} variant="primary">Próximo Turno ⏭</Button>
+          <Button
+            onClick={() => {
+              setTemplatesAberto(false);
+              setSalvarFormAberto((v) => !v);
+            }}
+            disabled={encounter.combatentes.length === 0}
+          >
+            💾 Salvar Encontro
+          </Button>
           <ConfirmButton onConfirm={resetarEncontro} confirmLabel="Confirmar fim">Encerrar Combate</ConfirmButton>
         </div>
       </div>
+
+      {salvarFormAberto && (
+        <Card title="Salvar Encontro Atual">
+          <p className="text-xs text-parchment-300/50 mb-2">
+            Salva os combatentes de agora (nome, CA, PV máximo) como um molde reutilizável — sem iniciativa nem PV atual, prontos pra rolar do zero quando o combate acontecer de verdade.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <Field label="Nome do Encontro">
+              <TextInput autoFocus value={salvarNome} onChange={setSalvarNome} placeholder="Ex: Emboscada Zhentarim" />
+            </Field>
+            <Field label="Descrição (opcional)">
+              <TextInput value={salvarDescricao} onChange={setSalvarDescricao} placeholder="Onde/quando esse encontro acontece" />
+            </Field>
+          </div>
+          <div className="flex gap-2 mt-3">
+            <Button variant="gold" onClick={salvarEncontroAtual}>Salvar</Button>
+            <Button onClick={() => setSalvarFormAberto(false)}>Cancelar</Button>
+          </div>
+        </Card>
+      )}
 
       <div className="flex gap-2 flex-wrap">
         <div className="relative">
@@ -235,6 +312,53 @@ export default function Combat() {
               <p className="text-[10px] text-parchment-300/30 mt-2 pt-2 border-t border-ink-700">
                 Dados abertos do SRD 5.1 (em inglês). Clique no nome para adicionar direto ao combate.
               </p>
+            </div>
+          )}
+        </div>
+
+        <div className="relative">
+          <Button
+            onClick={() => {
+              setPickerAberto(false);
+              setBestiarioAberto(false);
+              setTemplatesAberto((v) => !v);
+            }}
+          >
+            📂 Encontros Salvos {encounterTemplates.length > 0 ? `(${encounterTemplates.length})` : ""}
+          </Button>
+          {templatesAberto && (
+            <div className="absolute z-10 mt-2 card p-3 w-96 max-w-[90vw] max-h-96 overflow-y-auto">
+              {encounterTemplates.length === 0 ? (
+                <p className="text-xs text-parchment-300/40 py-2">
+                  Nenhum encontro salvo ainda. Monte os combatentes abaixo e use "💾 Salvar Encontro" para guardar um molde.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {encounterTemplates.map((t) => (
+                    <div key={t.id} className="border border-ink-700 rounded p-2">
+                      <p className="text-sm font-display text-parchment-50">{t.nome}</p>
+                      {t.descricao && <p className="text-xs text-parchment-300/50 italic">{t.descricao}</p>}
+                      <p className="text-[10px] text-parchment-300/40 mt-0.5">
+                        {t.combatentes.length} combatente{t.combatentes.length === 1 ? "" : "s"}: {t.combatentes.map((c) => c.nome).join(", ")}
+                      </p>
+                      <div className="flex gap-1.5 mt-2">
+                        {encounter.combatentes.length > 0 ? (
+                          <ConfirmButton onConfirm={() => carregarTemplate(t)} confirmLabel="Substituir combate atual">
+                            Carregar
+                          </ConfirmButton>
+                        ) : (
+                          <Button className="!text-xs !px-2 !py-1" variant="gold" onClick={() => carregarTemplate(t)}>
+                            Carregar
+                          </Button>
+                        )}
+                        <ConfirmButton onConfirm={() => removeEncounterTemplate(t.id)} confirmLabel="Confirmar">
+                          Remover
+                        </ConfirmButton>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

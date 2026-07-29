@@ -188,3 +188,29 @@ export function newMapEntry(overrides = {}) {
     ...overrides,
   };
 }
+
+// combatente "molde": nome, tipo, ca, pvMax, iniciativaMod, notas, sourceId
+export function newEncounterTemplateCombatant(overrides = {}) {
+  return {
+    id: id(),
+    nome: "",
+    tipo: "npc",
+    ca: 10,
+    pvMax: 10,
+    iniciativaMod: 0,
+    notas: "",
+    sourceId: null,
+    ...overrides,
+  };
+}
+
+export function newEncounterTemplate(overrides = {}) {
+  return {
+    id: id(),
+    createdAt: Date.now(),
+    nome: "Novo Encontro",
+    descricao: "",
+    combatentes: [],
+    ...overrides,
+  };
+}

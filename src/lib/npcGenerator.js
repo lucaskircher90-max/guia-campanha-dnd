@@ -1,8 +1,19 @@
 // Gerador de NPCs aleatórios rápidos para uso durante a sessão
 
-const RACAS = [
+export const RACAS = [
   "Humano", "Elfo", "Meio-Elfo", "Anão", "Halfling", "Gnomo",
   "Meio-Orc", "Tiefling", "Draconato", "Kalashtar", "Goliath", "Tabaxi",
+];
+
+export const CLASSES = [
+  "Bárbaro", "Bardo", "Bruxo", "Clérigo", "Druida", "Feiticeiro",
+  "Guerreiro", "Ladino", "Mago", "Monge", "Paladino", "Patrulheiro",
+];
+
+export const FUNCOES = [
+  "Guarda", "Cidadão", "Cultista", "Mercador", "Criança", "Nobre",
+  "Criminoso", "Religioso", "Artesão", "Estudioso", "Taverneiro",
+  "Camponês", "Mercenário",
 ];
 
 const NOMES = {
@@ -24,13 +35,24 @@ const SOBRENOMES = [
   "Trovejante", "do Bosque Antigo", "Ferreiro", "Caçasombra", "Brandão",
 ];
 
-const OCUPACOES = [
-  "Taverneiro(a)", "Ferreiro(a)", "Guarda da cidade", "Mercador(a) itinerante",
-  "Curandeiro(a)", "Ladrão(oa) de rua", "Sacerdote(isa)", "Bardo(a) viajante",
-  "Caçador(a) de recompensas", "Fazendeiro(a)", "Erudito(a)", "Marinheiro(a)",
-  "Escriba", "Contrabandista", "Nobre menor", "Mendigo(a)", "Alquimista",
-  "Domador(a) de animais", "Coveiro(a)", "Espião(ã)",
-];
+// Ocupações agrupadas por função — usadas como filtro rápido no gerador.
+const FUNCAO_OCUPACOES = {
+  Guarda: ["Guarda da cidade", "Guarda da muralha", "Capitão(ã) da guarda", "Soldado(a) da milícia local", "Vigia noturno(a)"],
+  Cidadão: ["Morador(a) comum do bairro", "Dono(a) de uma pequena casa", "Aposentado(a) de uma guilda", "Pai/mãe de família", "Recém-chegado(a) à cidade"],
+  Cultista: ["Membro recém-convertido de um culto", "Iniciado(a) que já duvida da fé", "Zelador(a) de um santuário secreto", "Mensageiro(a) de uma seita obscura", "Fanático(a) disposto(a) a tudo pela causa"],
+  Mercador: ["Mercador(a) itinerante", "Dono(a) de uma pequena loja", "Vendedor(a) de rua", "Comerciante de especiarias", "Negociante de informações"],
+  Criança: ["Órfã(o) que vive nas ruas", "Filho(a) de um comerciante local", "Aprendiz mirim de um artesão", "Criança curiosa demais para o próprio bem", "Vendedor(a) mirim de jornais ou flores"],
+  Nobre: ["Nobre menor endividado(a)", "Herdeiro(a) de uma casa em declínio", "Diplomata da corte", "Filho(a) mimado(a) de família rica", "Nobre caído(a) em desgraça"],
+  Criminoso: ["Ladrão(oa) de rua", "Contrabandista", "Batedor(a) de carteiras", "Membro de uma gangue local", "Falsificador(a) de documentos"],
+  Religioso: ["Sacerdote(isa)", "Acólito(a) de um templo", "Peregrino(a) devoto(a)", "Curandeiro(a) de um santuário", "Exorcista itinerante"],
+  Artesão: ["Ferreiro(a)", "Carpinteiro(a)", "Alfaiate", "Joalheiro(a)", "Curtidor(a) de couro"],
+  Estudioso: ["Erudito(a)", "Escriba", "Bibliotecário(a)", "Alquimista", "Cartógrafo(a)"],
+  Taverneiro: ["Taverneiro(a)", "Garçom/Garçonete", "Cervejeiro(a) local", "Cozinheiro(a) de estalagem", "Dono(a) de uma pousada"],
+  "Camponês": ["Fazendeiro(a)", "Pastor(a) de ovelhas", "Pescador(a)", "Lenhador(a)", "Colhedor(a) sazonal"],
+  Mercenário: ["Caçador(a) de recompensas", "Mercenário(a) sem contrato atual", "Ex-soldado(a) de fortuna", "Guarda-costas de aluguel", "Duelista itinerante"],
+};
+
+const TODAS_OCUPACOES = Object.values(FUNCAO_OCUPACOES).flat();
 
 const TRACOS_PERSONALIDADE = [
   "Fala sempre em voz baixa, como se contasse um segredo.",
@@ -76,19 +98,57 @@ const GANCHOS = [
   "Precisa de escolta até o próximo povoado.",
 ];
 
+// Crianças precisam de traços/motivações/ganchos próprios — os pools acima
+// (dívidas de jogo, vingança, contrabando) não fazem sentido para elas.
+const CRIANCA_TRACOS = [
+  "Faz perguntas sem parar sobre tudo que vê.",
+  "Finge ser um herói famoso enquanto brinca pelas ruas.",
+  "Esconde um bichinho de estimação que não deveria ter.",
+  "Troca figurinhas, botões ou pedrinhas como se fossem tesouros.",
+  "Conta segredos alheios sem perceber que são segredos.",
+  "Tem um amigo imaginário que 'sabe de tudo'.",
+  "Corre atrás de qualquer animal que vê pela rua.",
+  "Fala demais quando está nervoso(a).",
+];
+
+const CRIANCA_MOTIVACOES = [
+  "Quer provar que não é pequeno(a) demais para ajudar.",
+  "Está procurando o bichinho de estimação que fugiu.",
+  "Quer impressionar um herói ou aventureiro que admira.",
+  "Foi desafiado(a) por outras crianças a fazer algo perigoso.",
+  "Guarda um segredo que prometeu não contar a ninguém.",
+  "Só quer voltar para casa antes que alguém perceba que sumiu.",
+];
+
+const CRIANCA_GANCHOS = [
+  "Viu algo estranho que os adultos não acreditam.",
+  "Pede ajuda para resgatar um bichinho preso em algum lugar.",
+  "Oferece mostrar um atalho secreto que só as crianças conhecem.",
+  "Confunde os aventureiros com os heróis de uma história que ouviu.",
+  "Está perdido(a) e não sabe voltar para casa.",
+];
+
 function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export function generateRandomNpc() {
+// filtros opcionais: { raca, classe, funcao } — qualquer um ausente/"" = aleatório
+export function generateRandomNpc(filtros = {}) {
+  const { raca, classe, funcao } = filtros;
   const genero = Math.random() < 0.5 ? "masc" : "fem";
   const nome = `${pick(NOMES[genero])} ${pick(SOBRENOMES)}`;
+
+  const poolOcupacoes = funcao ? FUNCAO_OCUPACOES[funcao] : TODAS_OCUPACOES;
+  const ehCrianca = funcao === "Criança";
+
   return {
     nome,
-    raca: pick(RACAS),
-    ocupacao: pick(OCUPACOES),
-    traco: pick(TRACOS_PERSONALIDADE),
-    motivacao: pick(MOTIVACOES),
-    gancho: pick(GANCHOS),
+    raca: raca || pick(RACAS),
+    classe: classe || "",
+    funcao: funcao || "",
+    ocupacao: pick(poolOcupacoes || TODAS_OCUPACOES),
+    traco: pick(ehCrianca ? CRIANCA_TRACOS : TRACOS_PERSONALIDADE),
+    motivacao: pick(ehCrianca ? CRIANCA_MOTIVACOES : MOTIVACOES),
+    gancho: pick(ehCrianca ? CRIANCA_GANCHOS : GANCHOS),
   };
 }

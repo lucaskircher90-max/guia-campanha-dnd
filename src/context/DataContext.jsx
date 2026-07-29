@@ -1,6 +1,8 @@
 import { createContext, useContext, useMemo } from "react";
 import { useLocalStorage } from "../lib/useLocalStorage";
-import { newPlayerCharacter, newNpc, newMilestone, newEncounter, newItem, newMapEntry } from "../lib/models";
+import {
+  newPlayerCharacter, newNpc, newMilestone, newEncounter, newItem, newMapEntry, newEncounterTemplate,
+} from "../lib/models";
 
 const DataContext = createContext(null);
 
@@ -12,6 +14,7 @@ export function DataProvider({ children }) {
   const [campaign, setCampaign] = useLocalStorage("dnd.campaign", { nome: "Minha Campanha" });
   const [items, setItems] = useLocalStorage("dnd.items", []);
   const [maps, setMaps] = useLocalStorage("dnd.maps", []);
+  const [encounterTemplates, setEncounterTemplates] = useLocalStorage("dnd.encounterTemplates", []);
 
   const api = useMemo(() => ({
     // Campanha
@@ -70,6 +73,17 @@ export function DataProvider({ children }) {
     encounter,
     setEncounter,
 
+    // Encontros salvos (moldes)
+    encounterTemplates,
+    addEncounterTemplate: (overrides) => {
+      const t = newEncounterTemplate(overrides);
+      setEncounterTemplates((prev) => [t, ...prev]);
+      return t;
+    },
+    removeEncounterTemplate: (id) => {
+      setEncounterTemplates((prev) => prev.filter((t) => t.id !== id));
+    },
+
     // Itens
     items,
     addItem: (overrides) => {
@@ -101,7 +115,7 @@ export function DataProvider({ children }) {
     // Backup / transferência entre dispositivos
     exportData: () => ({
       formato: "guia-campanha-dnd",
-      versao: 2,
+      versao: 3,
       exportadoEm: new Date().toISOString(),
       campaign,
       players,
@@ -110,6 +124,7 @@ export function DataProvider({ children }) {
       encounter,
       items,
       maps,
+      encounterTemplates,
     }),
     importData: (data) => {
       if (!data || typeof data !== "object") throw new Error("Arquivo inválido.");
@@ -120,10 +135,11 @@ export function DataProvider({ children }) {
       if (data.campaign && typeof data.campaign === "object") setCampaign(data.campaign);
       if (Array.isArray(data.items)) setItems(data.items);
       if (Array.isArray(data.maps)) setMaps(data.maps);
+      if (Array.isArray(data.encounterTemplates)) setEncounterTemplates(data.encounterTemplates);
     },
   }), [
-    players, npcs, milestones, encounter, campaign, items, maps,
-    setPlayers, setNpcs, setMilestones, setEncounter, setCampaign, setItems, setMaps,
+    players, npcs, milestones, encounter, campaign, items, maps, encounterTemplates,
+    setPlayers, setNpcs, setMilestones, setEncounter, setCampaign, setItems, setMaps, setEncounterTemplates,
   ]);
 
   return <DataContext.Provider value={api}>{children}</DataContext.Provider>;
