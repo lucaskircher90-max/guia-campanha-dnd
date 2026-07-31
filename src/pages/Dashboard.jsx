@@ -15,11 +15,15 @@ export default function Dashboard() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <p className="text-parchment-300/60 text-xs uppercase tracking-widest mb-1">Campanha</p>
-          <TextInput
-            value={campaign?.nome}
-            onChange={(v) => setCampaign({ ...campaign, nome: v })}
-            className="!text-2xl font-display !bg-transparent !border-none !p-0 text-gold-400"
-          />
+          <div className="group relative inline-flex items-center gap-2">
+            <TextInput
+              value={campaign?.nome}
+              onChange={(v) => setCampaign({ ...campaign, nome: v })}
+              title="Clique para editar o nome da campanha"
+              className="!text-2xl font-display !bg-transparent !border-none !border-b !border-dashed !border-transparent group-hover:!border-parchment-300/30 focus:!border-gold-500 !rounded-none !p-0 text-gold-400 transition-colors"
+            />
+            <span className="text-sm text-parchment-300/30 opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
+          </div>
         </div>
         {emCombate && (
           <Link to="/combate" className="animate-pulse">
