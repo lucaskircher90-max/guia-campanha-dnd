@@ -1,15 +1,16 @@
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { Button, Card, ConfirmButton, Field, TextArea, TextInput } from "../components/ui";
 import { compressImageFile, estimateDataUrlKb } from "../lib/imageUtils";
 
 export default function MapsList() {
   const { maps, addMap, updateMap, removeMap } = useData();
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
   const [expandido, setExpandido] = useState(null);
-  const [lightbox, setLightbox] = useState(null);
 
   function abrirSeletor() {
     setErro("");
@@ -40,13 +41,14 @@ export default function MapsList() {
     if (!file) return;
     try {
       const dataUrl = await compressImageFile(file);
-      updateMap(mapId, { imagemDataUrl: dataUrl });
+      // troca de imagem invalida a névoa desenhada anteriormente
+      updateMap(mapId, { imagemDataUrl: dataUrl, fogDataUrl: "" });
     } catch (err) {
       setErro(err.message || "Falha ao processar a imagem.");
     }
   }
 
-  const totalKb = maps.reduce((sum, m) => sum + estimateDataUrlKb(m.imagemDataUrl), 0);
+  const totalKb = maps.reduce((sum, m) => sum + estimateDataUrlKb(m.imagemDataUrl) + estimateDataUrlKb(m.fogDataUrl), 0);
 
   return (
     <div className="flex flex-col gap-4">
@@ -72,11 +74,20 @@ export default function MapsList() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {maps.map((m) => (
             <div key={m.id} className="card overflow-hidden flex flex-col">
-              <button onClick={() => setLightbox(m)} className="block aspect-video bg-ink-900 overflow-hidden">
+              <button
+                onClick={() => navigate(`/mapas/${m.id}`)}
+                className="block aspect-video bg-ink-900 overflow-hidden relative"
+                title="Abrir visualizador (zoom e névoa de guerra)"
+              >
                 {m.imagemDataUrl ? (
                   <img src={m.imagemDataUrl} alt={m.nome} className="w-full h-full object-cover hover:opacity-80 transition-opacity" />
                 ) : (
                   <span className="flex items-center justify-center h-full text-xs text-parchment-300/30">Sem imagem</span>
+                )}
+                {m.fogDataUrl && (
+                  <span className="absolute bottom-1 right-1 text-[10px] px-1.5 py-0.5 rounded-full bg-ink-950/80 text-gold-400 border border-gold-600">
+                    névoa configurada
+                  </span>
                 )}
               </button>
               <div className="p-3 flex flex-col gap-2">
@@ -103,27 +114,15 @@ export default function MapsList() {
                   </div>
                 )}
 
-                <div className="flex justify-end pt-2 border-t border-ink-700">
+                <div className="flex justify-between items-center pt-2 border-t border-ink-700">
+                  <Button className="!text-xs !px-2 !py-1" variant="gold" onClick={() => navigate(`/mapas/${m.id}`)}>
+                    🔍 Abrir Visualizador
+                  </Button>
                   <ConfirmButton onConfirm={() => removeMap(m.id)}>Remover</ConfirmButton>
                 </div>
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {lightbox && (
-        <div
-          className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-6"
-          onClick={() => setLightbox(null)}
-        >
-          <div className="max-w-5xl w-full flex flex-col items-center gap-3" onClick={(e) => e.stopPropagation()}>
-            <img src={lightbox.imagemDataUrl} alt={lightbox.nome} className="max-h-[80vh] w-auto rounded border border-ink-600" />
-            <div className="flex items-center gap-3">
-              <span className="text-parchment-100 font-display">{lightbox.nome}</span>
-              <Button onClick={() => setLightbox(null)}>Fechar</Button>
-            </div>
-          </div>
         </div>
       )}
     </div>

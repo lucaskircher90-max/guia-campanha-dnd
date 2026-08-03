@@ -185,6 +185,7 @@ export function newMapEntry(overrides = {}) {
     local: "",
     notas: "",
     imagemDataUrl: "",
+    fogDataUrl: "", // camada de névoa (revelado/oculto), gerada no Visualizador
     ...overrides,
   };
 }

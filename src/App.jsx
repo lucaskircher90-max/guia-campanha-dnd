@@ -12,6 +12,7 @@ import Combat from "./pages/Combat";
 import ItemsList from "./pages/ItemsList";
 import ItemSheet from "./pages/ItemSheet";
 import MapsList from "./pages/MapsList";
+import MapViewer from "./pages/MapViewer";
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
             <Route path="/itens" element={<ItemsList />} />
             <Route path="/itens/:id" element={<ItemSheet />} />
             <Route path="/mapas" element={<MapsList />} />
+            <Route path="/mapas/:id" element={<MapViewer />} />
           </Route>
         </Routes>
       </HashRouter>
