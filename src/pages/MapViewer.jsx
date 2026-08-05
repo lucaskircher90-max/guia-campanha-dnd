@@ -21,7 +21,7 @@ function hitTestShape(shapes, pt, { anyState = false } = {}) {
   for (let i = shapes.length - 1; i >= 0; i--) {
     const s = shapes[i];
     if (!anyState && !s.oculto) continue;
-    if (s.type === "rect") {
+    if (s.type === "retangulo") {
       if (pt.x >= s.x && pt.x <= s.x + s.w && pt.y >= s.y && pt.y <= s.y + s.h) return s;
     } else {
       const cx = s.x + s.w / 2, cy = s.y + s.h / 2;
@@ -86,7 +86,7 @@ export default function MapViewer() {
     ctx.fillStyle = "#000";
     for (const s of shapesRef.current) {
       if (!s.oculto) continue;
-      if (s.type === "rect") {
+      if (s.type === "retangulo") {
         ctx.fillRect(s.x, s.y, s.w, s.h);
       } else {
         ctx.beginPath();
@@ -104,7 +104,7 @@ export default function MapViewer() {
       ctx.lineWidth = 1.5 / zoomRef.current;
       for (const s of shapesRef.current) {
         if (s.oculto) continue;
-        if (s.type === "rect") {
+        if (s.type === "retangulo") {
           ctx.strokeRect(s.x, s.y, s.w, s.h);
         } else {
           ctx.beginPath();
