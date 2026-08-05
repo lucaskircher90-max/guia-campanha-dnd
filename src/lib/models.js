@@ -185,7 +185,8 @@ export function newMapEntry(overrides = {}) {
     local: "",
     notas: "",
     imagemDataUrl: "",
-    fogDataUrl: "", // camada de névoa (revelado/oculto), gerada no Visualizador
+    fogDataUrl: "", // camada de névoa por pincel (revelado/oculto), gerada no Visualizador
+    fogShapes: [], // formas geométricas ocultando áreas: [{id, type, x, y, w, h, oculto}]
     ...overrides,
   };
 }

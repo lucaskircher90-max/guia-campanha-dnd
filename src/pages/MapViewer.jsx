@@ -6,6 +6,32 @@ import { Button, Card } from "../components/ui";
 const MAX_WORLD_DIM = 1600;
 const ZOOM_MIN = 0.15;
 const ZOOM_MAX = 6;
+const CLICK_THRESHOLD = 6; // px de movimento pra diferenciar clique de arraste
+
+const TOOLS = [
+  { key: "mover", label: "✋ Mover" },
+  { key: "revelar", label: "🔦 Revelar (pincel)" },
+  { key: "ocultar", label: "🌑 Ocultar (pincel)" },
+  { key: "retangulo", label: "▭ Retângulo" },
+  { key: "circulo", label: "⬤ Círculo" },
+  { key: "remover-forma", label: "🗑️ Remover Forma" },
+];
+
+function hitTestShape(shapes, pt, { anyState = false } = {}) {
+  for (let i = shapes.length - 1; i >= 0; i--) {
+    const s = shapes[i];
+    if (!anyState && !s.oculto) continue;
+    if (s.type === "rect") {
+      if (pt.x >= s.x && pt.x <= s.x + s.w && pt.y >= s.y && pt.y <= s.y + s.h) return s;
+    } else {
+      const cx = s.x + s.w / 2, cy = s.y + s.h / 2;
+      const rx = s.w / 2 || 1, ry = s.h / 2 || 1;
+      const nx = (pt.x - cx) / rx, ny = (pt.y - cy) / ry;
+      if (nx * nx + ny * ny <= 1) return s;
+    }
+  }
+  return null;
+}
 
 export default function MapViewer() {
   const { id } = useParams();
@@ -21,6 +47,10 @@ export default function MapViewer() {
   const zoomRef = useRef(1);
   const drawingRef = useRef(false);
   const lastPointRef = useRef(null);
+  const dragStartRef = useRef(null);
+  const movedRef = useRef(false);
+  const draftRef = useRef(null);
+  const shapesRef = useRef([]);
   const toolRef = useRef("mover");
   const brushRef = useRef(80);
   const modoJogadoresRef = useRef(false);
@@ -30,6 +60,7 @@ export default function MapViewer() {
   const [tool, setTool] = useState("mover");
   const [brushSize, setBrushSize] = useState(80);
   const [modoJogadores, setModoJogadores] = useState(false);
+  const [shapes, setShapes] = useState([]);
 
   toolRef.current = tool;
   brushRef.current = brushSize;
@@ -48,9 +79,57 @@ export default function MapViewer() {
     ctx.translate(panRef.current.x, panRef.current.y);
     ctx.scale(zoomRef.current, zoomRef.current);
     ctx.drawImage(img, 0, 0, worldRef.current.w, worldRef.current.h);
+
     ctx.globalAlpha = modoJogadoresRef.current ? 1 : 0.55;
     ctx.drawImage(fog, 0, 0);
+
+    ctx.fillStyle = "#000";
+    for (const s of shapesRef.current) {
+      if (!s.oculto) continue;
+      if (s.type === "rect") {
+        ctx.fillRect(s.x, s.y, s.w, s.h);
+      } else {
+        ctx.beginPath();
+        ctx.ellipse(s.x + s.w / 2, s.y + s.h / 2, s.w / 2, s.h / 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
     ctx.globalAlpha = 1;
+
+    // Contorno sutil nas formas já reveladas, só no Modo Mestre — pra dar pra achar
+    // e apagar com "Remover Forma" mesmo depois de reveladas.
+    if (!modoJogadoresRef.current) {
+      ctx.strokeStyle = "rgba(201, 162, 75, 0.5)";
+      ctx.setLineDash([6 / zoomRef.current, 4 / zoomRef.current]);
+      ctx.lineWidth = 1.5 / zoomRef.current;
+      for (const s of shapesRef.current) {
+        if (s.oculto) continue;
+        if (s.type === "rect") {
+          ctx.strokeRect(s.x, s.y, s.w, s.h);
+        } else {
+          ctx.beginPath();
+          ctx.ellipse(s.x + s.w / 2, s.y + s.h / 2, s.w / 2, s.h / 2, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+      ctx.setLineDash([]);
+    }
+
+    if (!modoJogadoresRef.current && draftRef.current) {
+      const d = draftRef.current;
+      const x = Math.min(d.x0, d.x1), y = Math.min(d.y0, d.y1);
+      const w = Math.abs(d.x1 - d.x0), h = Math.abs(d.y1 - d.y0);
+      ctx.globalAlpha = 0.4;
+      ctx.fillStyle = "#c9a24b";
+      if (d.type === "retangulo") ctx.fillRect(x, y, w, h);
+      else { ctx.beginPath(); ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.fill(); }
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = "#c9a24b";
+      ctx.lineWidth = 2 / zoomRef.current;
+      if (d.type === "retangulo") ctx.strokeRect(x, y, w, h);
+      else { ctx.beginPath(); ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.stroke(); }
+    }
+
     ctx.restore();
   }, []);
 
@@ -121,8 +200,8 @@ export default function MapViewer() {
         };
         fogImg.src = map.fogDataUrl;
       } else {
-        fctx.fillStyle = "#000";
-        fctx.fillRect(0, 0, w, h);
+        // Mapa novo: começa totalmente visível (fog em branco/transparente).
+        // Quem oculta é o mestre, adicionando formas ou usando o pincel Ocultar.
         finish();
       }
     };
@@ -130,9 +209,24 @@ export default function MapViewer() {
     return () => { cancelled = true; };
   }, [map?.id, map?.imagemDataUrl, fitToContainer]);
 
+  // Carrega as formas salvas para este mapa
+  useEffect(() => {
+    const loaded = map?.fogShapes || [];
+    setShapes(loaded);
+    shapesRef.current = loaded;
+    draftRef.current = null;
+  }, [map?.id]);
+
   function persistFog() {
     if (!map || !fogCanvasRef.current) return;
     updateMap(map.id, { fogDataUrl: fogCanvasRef.current.toDataURL("image/png") });
+  }
+
+  function persistShapes(next) {
+    shapesRef.current = next;
+    setShapes(next);
+    if (map) updateMap(map.id, { fogShapes: next });
+    draw();
   }
 
   function toWorld(clientX, clientY) {
@@ -152,34 +246,95 @@ export default function MapViewer() {
   }
 
   function onPointerDown(e) {
-    if (modoJogadoresRef.current || !ready) return;
+    if (!ready) return;
     canvasRef.current.setPointerCapture(e.pointerId);
     drawingRef.current = true;
-    if (toolRef.current === "mover") {
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+    movedRef.current = false;
+
+    if (modoJogadoresRef.current) {
       lastPointRef.current = { x: e.clientX, y: e.clientY };
-    } else {
+      return;
+    }
+
+    const t = toolRef.current;
+    if (t === "mover") {
+      lastPointRef.current = { x: e.clientX, y: e.clientY };
+    } else if (t === "revelar" || t === "ocultar") {
       paintAt(toWorld(e.clientX, e.clientY));
+      draw();
+    } else if (t === "retangulo" || t === "circulo") {
+      const wp = toWorld(e.clientX, e.clientY);
+      draftRef.current = { type: t, x0: wp.x, y0: wp.y, x1: wp.x, y1: wp.y };
       draw();
     }
   }
 
   function onPointerMove(e) {
     if (!drawingRef.current) return;
-    if (toolRef.current === "mover") {
+    const dxTotal = e.clientX - dragStartRef.current.x;
+    const dyTotal = e.clientY - dragStartRef.current.y;
+    if (Math.abs(dxTotal) > CLICK_THRESHOLD || Math.abs(dyTotal) > CLICK_THRESHOLD) movedRef.current = true;
+
+    if (modoJogadoresRef.current) {
       const last = lastPointRef.current;
       const dx = e.clientX - last.x, dy = e.clientY - last.y;
       lastPointRef.current = { x: e.clientX, y: e.clientY };
       panRef.current = { x: panRef.current.x + dx, y: panRef.current.y + dy };
       draw();
-    } else {
+      return;
+    }
+
+    const t = toolRef.current;
+    if (t === "mover") {
+      const last = lastPointRef.current;
+      const dx = e.clientX - last.x, dy = e.clientY - last.y;
+      lastPointRef.current = { x: e.clientX, y: e.clientY };
+      panRef.current = { x: panRef.current.x + dx, y: panRef.current.y + dy };
+      draw();
+    } else if (t === "revelar" || t === "ocultar") {
       paintAt(toWorld(e.clientX, e.clientY));
+      draw();
+    } else if ((t === "retangulo" || t === "circulo") && draftRef.current) {
+      const wp = toWorld(e.clientX, e.clientY);
+      draftRef.current.x1 = wp.x;
+      draftRef.current.y1 = wp.y;
       draw();
     }
   }
 
-  function onPointerUp() {
-    if (drawingRef.current && toolRef.current !== "mover") persistFog();
+  function onPointerUp(e) {
+    if (!drawingRef.current) return;
     drawingRef.current = false;
+
+    if (modoJogadoresRef.current) {
+      if (!movedRef.current) {
+        const wp = toWorld(e.clientX, e.clientY);
+        const hit = hitTestShape(shapesRef.current, wp);
+        if (hit) persistShapes(shapesRef.current.map((s) => (s.id === hit.id ? { ...s, oculto: false } : s)));
+      }
+      return;
+    }
+
+    const t = toolRef.current;
+    if (t === "revelar" || t === "ocultar") {
+      persistFog();
+    } else if ((t === "retangulo" || t === "circulo") && draftRef.current) {
+      const d = draftRef.current;
+      const x = Math.min(d.x0, d.x1), y = Math.min(d.y0, d.y1);
+      const w = Math.abs(d.x1 - d.x0), h = Math.abs(d.y1 - d.y0);
+      draftRef.current = null;
+      if (w > 8 && h > 8) {
+        const nova = { id: crypto.randomUUID(), type: d.type, x, y, w, h, oculto: true };
+        persistShapes([...shapesRef.current, nova]);
+      } else {
+        draw();
+      }
+    } else if (t === "remover-forma" && !movedRef.current) {
+      const wp = toWorld(e.clientX, e.clientY);
+      const hit = hitTestShape(shapesRef.current, wp, { anyState: true });
+      if (hit) persistShapes(shapesRef.current.filter((s) => s.id !== hit.id));
+    }
   }
 
   // Zoom com a roda do mouse (listener manual p/ poder usar preventDefault)
@@ -216,8 +371,8 @@ export default function MapViewer() {
   function revelarTudo() {
     const fog = fogCanvasRef.current;
     fog.getContext("2d").clearRect(0, 0, fog.width, fog.height);
-    draw();
     persistFog();
+    persistShapes(shapesRef.current.map((s) => ({ ...s, oculto: false })));
   }
 
   function ocultarTudo() {
@@ -226,8 +381,8 @@ export default function MapViewer() {
     fctx.globalCompositeOperation = "source-over";
     fctx.fillStyle = "#000";
     fctx.fillRect(0, 0, fog.width, fog.height);
-    draw();
     persistFog();
+    persistShapes(shapesRef.current.map((s) => ({ ...s, oculto: true })));
   }
 
   useEffect(() => { draw(); }, [modoJogadores, draw]);
@@ -240,6 +395,8 @@ export default function MapViewer() {
       </Card>
     );
   }
+
+  const formasOcultas = shapes.filter((s) => s.oculto).length;
 
   return (
     <div className="flex flex-col gap-3" style={{ height: "calc(100vh - 140px)" }}>
@@ -258,12 +415,8 @@ export default function MapViewer() {
 
       {!modoJogadores && (
         <div className="flex flex-wrap items-center gap-3 card p-2.5">
-          <div className="flex gap-1.5">
-            {[
-              { key: "mover", label: "✋ Mover" },
-              { key: "revelar", label: "🔦 Revelar" },
-              { key: "ocultar", label: "🌑 Ocultar" },
-            ].map((t) => (
+          <div className="flex gap-1.5 flex-wrap">
+            {TOOLS.map((t) => (
               <button
                 key={t.key}
                 onClick={() => setTool(t.key)}
@@ -276,18 +429,20 @@ export default function MapViewer() {
             ))}
           </div>
 
-          <label className="flex items-center gap-2 text-xs text-parchment-300/60">
-            Pincel
-            <input
-              type="range"
-              min={20}
-              max={400}
-              step={10}
-              value={brushSize}
-              onChange={(e) => setBrushSize(Number(e.target.value))}
-              className="w-28"
-            />
-          </label>
+          {(tool === "revelar" || tool === "ocultar") && (
+            <label className="flex items-center gap-2 text-xs text-parchment-300/60">
+              Pincel
+              <input
+                type="range"
+                min={20}
+                max={400}
+                step={10}
+                value={brushSize}
+                onChange={(e) => setBrushSize(Number(e.target.value))}
+                className="w-28"
+              />
+            </label>
+          )}
 
           <div className="flex gap-1.5">
             <Button className="!px-2 !py-1 !text-xs" onClick={() => zoomBy(1.25)}>Zoom +</Button>
@@ -311,17 +466,26 @@ export default function MapViewer() {
         <canvas
           ref={canvasRef}
           className="w-full h-full block"
-          style={{ cursor: modoJogadores ? "default" : tool === "mover" ? "grab" : "crosshair" }}
+          style={{
+            cursor: modoJogadores
+              ? "pointer"
+              : tool === "mover" ? "grab" : tool === "remover-forma" ? "pointer" : "crosshair",
+          }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerLeave={onPointerUp}
         />
+        {modoJogadores && formasOcultas + (map.fogDataUrl ? 1 : 0) > 0 && (
+          <span className="absolute bottom-2 right-2 text-[10px] px-2 py-1 rounded-full bg-ink-950/70 text-parchment-300/60 border border-ink-600">
+            Clique numa área oculta para revelar
+          </span>
+        )}
       </div>
 
       {!modoJogadores && (
         <p className="text-[10px] text-parchment-300/30">
-          A névoa fica salva junto com o mapa — pode fechar e continuar revelando depois. No Modo Jogadores, as áreas ocultas ficam totalmente pretas e as ferramentas somem.
+          Mapas novos começam totalmente visíveis. Retângulo/Círculo desenham formas opacas com clique-e-arraste pra cobrir salas antes da sessão — no Modo Jogadores, clique numa forma pra revelar aquela área (fica guardada, dá pra reocultar com "Ocultar Tudo"). O pincel Revelar/Ocultar continua disponível para ajustes finos. Tudo fica salvo junto com o mapa.
         </p>
       )}
     </div>
