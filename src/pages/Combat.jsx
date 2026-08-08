@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { Button, Card, ConfirmButton, Field, NumberInput, TextInput } from "../components/ui";
 import { newCombatant, newEncounterTemplateCombatant } from "../lib/models";
-import { abilityMod, CONDITIONS, CR_TABLE, calcularDificuldadeEncontro } from "../lib/dnd";
+import { ABILITIES, SKILLS, abilityMod, fmtMod, CONDITIONS, CR_TABLE, calcularDificuldadeEncontro } from "../lib/dnd";
 
 export default function Combat() {
   const {
@@ -101,6 +102,7 @@ export default function Combat() {
         pvAtual: m.pvMedio,
         iniciativa: rollD20() + abilityMod(m.atributos?.des ?? 10),
         notas: `ND ${m.nd}`,
+        statBlock: m,
       })
     );
   }
@@ -386,6 +388,8 @@ export default function Combat() {
               isCurrent={i === encounter.turnoAtual}
               onUpdate={(patch) => updateCombatant(c.id, patch)}
               onRemove={() => removeCombatant(c.id)}
+              players={players}
+              npcs={npcs}
             />
           ))}
         </div>
@@ -704,9 +708,14 @@ function DifficultyCalculator({ players, npcs, bestiario, bestiarioCarregando })
   );
 }
 
-function CombatantRow({ combatant: c, isCurrent, onUpdate, onRemove }) {
+function CombatantRow({ combatant: c, isCurrent, onUpdate, onRemove, players, npcs }) {
+  const [detalhesAberto, setDetalhesAberto] = useState(false);
   const pvPercent = c.pvMax > 0 ? Math.max(0, Math.min(100, (c.pvAtual / c.pvMax) * 100)) : 0;
   const pvColor = pvPercent > 50 ? "bg-emerald-600" : pvPercent > 25 ? "bg-gold-600" : "bg-blood-600";
+
+  const player = c.tipo === "pj" && c.sourceId ? players.find((p) => p.id === c.sourceId) : null;
+  const npc = c.tipo === "npc" && c.sourceId ? npcs.find((n) => n.id === c.sourceId) : null;
+  const temFicha = !!(player || npc || c.statBlock);
 
   return (
     <div className={`card p-3 ${isCurrent ? "border-gold-500 ring-1 ring-gold-500" : ""}`}>
@@ -744,6 +753,13 @@ function CombatantRow({ combatant: c, isCurrent, onUpdate, onRemove }) {
           </Field>
         </div>
 
+        <Button
+          variant={detalhesAberto ? "primary" : "default"}
+          title={temFicha ? "Ver ficha / stat block" : "Nenhuma ficha vinculada a este combatente"}
+          onClick={() => setDetalhesAberto((v) => !v)}
+        >
+          {detalhesAberto ? "▲ Ficha" : "▼ Ficha"}
+        </Button>
         <Button variant="danger" onClick={onRemove}>✕</Button>
       </div>
 
@@ -766,6 +782,134 @@ function CombatantRow({ combatant: c, isCurrent, onUpdate, onRemove }) {
             </button>
           );
         })}
+      </div>
+
+      {detalhesAberto && (
+        <div className="mt-2 pt-2 border-t border-ink-700">
+          {player && <PlayerDetail player={player} />}
+          {npc && <StatBlockDetail data={npc} sheetLink={`/npcs/${npc.id}`} />}
+          {!player && !npc && c.statBlock && <StatBlockDetail data={c.statBlock} />}
+          {!temFicha && (
+            <p className="text-xs text-parchment-300/40">
+              Combatente avulso, sem ficha de jogador/NPC vinculada — apenas os campos acima estão disponíveis.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PlayerDetail({ player: p }) {
+  const proficientSkills = SKILLS.filter((s) => p.pericias?.[s.key]?.proficient);
+  const ataques = p.ataques || [];
+  return (
+    <div className="text-sm flex flex-col gap-2">
+      <div className="flex items-center justify-between flex-wrap gap-1">
+        <span className="text-xs text-parchment-300/50">
+          {[p.raca, p.classe, p.nivel ? `Nível ${p.nivel}` : ""].filter(Boolean).join(" · ")}
+        </span>
+        <Link to={`/jogadores/${p.id}`} className="text-xs text-gold-400 hover:underline">Abrir ficha completa →</Link>
+      </div>
+
+      <div className="grid grid-cols-6 gap-1 text-center text-xs">
+        {ABILITIES.map((a) => (
+          <div key={a.key} className="rounded border border-ink-700 py-1">
+            <div className="uppercase text-parchment-300/50">{a.key}</div>
+            <div className="text-parchment-100">{p.atributos?.[a.key] ?? 10}</div>
+            <div className="text-gold-400">{fmtMod(abilityMod(p.atributos?.[a.key] ?? 10))}</div>
+          </div>
+        ))}
+      </div>
+
+      {ataques.length > 0 && (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-parchment-300/50 mb-1">Ataques</p>
+          <div className="flex flex-col gap-0.5">
+            {ataques.map((atk, i) => (
+              <p key={i} className="text-xs text-parchment-200">
+                <b>{atk.nome || "Ataque"}</b> {atk.bonus && `· ${atk.bonus} para acertar`} {atk.dano && `· ${atk.dano}`}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {proficientSkills.length > 0 && (
+        <p className="text-xs text-parchment-300/60">
+          <span className="text-parchment-300/50">Perícias: </span>
+          {proficientSkills.map((s) => s.label).join(", ")}
+        </p>
+      )}
+
+      {p.conjuracao?.classeConjuradora && (
+        <p className="text-xs text-parchment-300/60">
+          <span className="text-parchment-300/50">Conjuração ({p.conjuracao.classeConjuradora}): </span>
+          CD {p.conjuracao.cd || "—"} · Ataque {p.conjuracao.bonusAtaque || "—"}
+        </p>
+      )}
+
+      {p.caracteristicasHabilidades && (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-parchment-300/50 mb-0.5">Características / Habilidades</p>
+          <p className="text-xs text-parchment-200 whitespace-pre-wrap">{p.caracteristicasHabilidades}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StatBlockDetail({ data: n, sheetLink }) {
+  return (
+    <div className="text-sm flex flex-col gap-2">
+      <div className="flex items-center justify-between flex-wrap gap-1">
+        <span className="text-xs text-parchment-300/50">
+          {n.tipoTamanhoAlinhamento}{n.deslocamento ? ` · Desl. ${n.deslocamento}` : ""}{n.nd ? ` · ND ${n.nd}` : ""}
+        </span>
+        {sheetLink && <Link to={sheetLink} className="text-xs text-gold-400 hover:underline">Abrir ficha completa →</Link>}
+      </div>
+
+      <div className="grid grid-cols-6 gap-1 text-center text-xs">
+        {ABILITIES.map((a) => (
+          <div key={a.key} className="rounded border border-ink-700 py-1">
+            <div className="uppercase text-parchment-300/50">{a.key}</div>
+            <div className="text-parchment-100">{n.atributos?.[a.key] ?? 10}</div>
+            <div className="text-gold-400">{fmtMod(abilityMod(n.atributos?.[a.key] ?? 10))}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-xs text-parchment-300/60 flex flex-col gap-0.5">
+        {n.salvaguardas && <p><span className="text-parchment-300/50">Resistências: </span>{n.salvaguardas}</p>}
+        {n.pericias && <p><span className="text-parchment-300/50">Perícias: </span>{n.pericias}</p>}
+        {n.resistenciasDano && <p><span className="text-parchment-300/50">Resistência a Dano: </span>{n.resistenciasDano}</p>}
+        {n.imunidadesDano && <p><span className="text-parchment-300/50">Imunidade a Dano: </span>{n.imunidadesDano}</p>}
+        {n.vulnerabilidadesDano && <p><span className="text-parchment-300/50">Vulnerabilidade a Dano: </span>{n.vulnerabilidadesDano}</p>}
+        {n.imunidadesCondicao && <p><span className="text-parchment-300/50">Imunidade a Condição: </span>{n.imunidadesCondicao}</p>}
+        {n.sentidos && <p><span className="text-parchment-300/50">Sentidos: </span>{n.sentidos}</p>}
+        {n.idiomas && <p><span className="text-parchment-300/50">Idiomas: </span>{n.idiomas}</p>}
+      </div>
+
+      <StatBlockList label="Traços" items={n.tracos} />
+      <StatBlockList label="Ações" items={n.acoes} />
+      <StatBlockList label="Ações Lendárias" items={n.acoesLendarias} />
+      <StatBlockList label="Reações" items={n.reacoes} />
+    </div>
+  );
+}
+
+function StatBlockList({ label, items }) {
+  const list = items || [];
+  if (list.length === 0) return null;
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-wide text-parchment-300/50 mb-1">{label}</p>
+      <div className="flex flex-col gap-1">
+        {list.map((item, i) => (
+          <p key={i} className="text-xs text-parchment-200">
+            <b className="italic">{item.nome}.</b> {item.descricao}
+          </p>
+        ))}
       </div>
     </div>
   );

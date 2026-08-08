@@ -144,6 +144,7 @@ export function newCombatant(overrides = {}) {
     condicoes: [],
     notas: "",
     sourceId: null,
+    statBlock: null, // ficha completa "congelada" p/ monstros do bestiário (não salvos como NPC)
     ...overrides,
   };
 }
