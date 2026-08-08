@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
-import { Button, Card, TextInput } from "../components/ui";
+import { Button, Card, Field, TextInput } from "../components/ui";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import { BACKUP_FILENAME, downloadBackup, findBackupFile, requestAccessToken, uploadBackup } from "../lib/googleDrive";
 
 export default function Dashboard() {
   const { campaign, setCampaign, players, npcs, milestones, encounter } = useData();
@@ -90,6 +92,7 @@ function BackupCard() {
   const { exportData, importData, campaign } = useData();
   const fileInputRef = useRef(null);
   const [pendingImport, setPendingImport] = useState(null);
+  const [pendingOrigem, setPendingOrigem] = useState("arquivo");
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
@@ -125,6 +128,7 @@ function BackupCard() {
         if (!data || typeof data !== "object" || (!data.players && !data.npcs && !data.milestones)) {
           throw new Error("Formato não reconhecido.");
         }
+        setPendingOrigem("arquivo");
         setPendingImport(data);
       } catch {
         setErro("Não foi possível ler este arquivo. Verifique se é um backup exportado por esta ferramenta.");
@@ -142,7 +146,7 @@ function BackupCard() {
   return (
     <Card title="Backup da Campanha">
       <p className="text-xs text-parchment-300/60 mb-3">
-        Os dados ficam salvos apenas neste navegador. Para usar em outro computador, exporte um arquivo aqui e importe-o lá.
+        Os dados ficam salvos apenas neste navegador. Para usar em outro computador, exporte um arquivo aqui e importe-o lá — ou configure a sincronização com o Google Drive abaixo.
       </p>
 
       {!pendingImport ? (
@@ -154,7 +158,8 @@ function BackupCard() {
       ) : (
         <div className="flex flex-col gap-2 text-sm">
           <p className="text-parchment-100">
-            Importar este arquivo vai <span className="text-blood-500 font-semibold">substituir todos os dados atuais</span> neste navegador:
+            {pendingOrigem === "drive" ? "Carregar os dados do Drive vai" : "Importar este arquivo vai"}{" "}
+            <span className="text-blood-500 font-semibold">substituir todos os dados atuais</span> neste navegador:
           </p>
           <ul className="text-xs text-parchment-300/70 list-disc list-inside">
             <li>{pendingImport.players?.length ?? 0} jogador(es)</li>
@@ -170,7 +175,137 @@ function BackupCard() {
 
       {erro && <p className="text-xs text-blood-500 mt-2">{erro}</p>}
       {sucesso && <p className="text-xs text-emerald-500 mt-2">{sucesso}</p>}
+
+      <GoogleDriveSync
+        exportData={exportData}
+        onCarregado={(data) => {
+          setErro("");
+          setSucesso("");
+          setPendingOrigem("drive");
+          setPendingImport(data);
+        }}
+      />
     </Card>
+  );
+}
+
+function GoogleDriveSync({ exportData, onCarregado }) {
+  const [clientId, setClientId] = useLocalStorage("dnd.gdrive.clientId", "");
+  const [fileId, setFileId] = useLocalStorage("dnd.gdrive.fileId", "");
+  const [lastSync, setLastSync] = useLocalStorage("dnd.gdrive.lastSync", "");
+  const [configAberta, setConfigAberta] = useState(!clientId);
+  const [token, setToken] = useState("");
+  const [conectando, setConectando] = useState(false);
+  const [sincronizando, setSincronizando] = useState(false);
+  const [erro, setErro] = useState("");
+
+  const conectado = !!token;
+
+  async function conectar() {
+    setErro("");
+    setConectando(true);
+    try {
+      const t = await requestAccessToken(clientId);
+      setToken(t);
+      if (!fileId) {
+        const existente = await findBackupFile(t);
+        if (existente) setFileId(existente.id);
+      }
+    } catch (err) {
+      setErro(err.message || "Não foi possível conectar ao Google.");
+    } finally {
+      setConectando(false);
+    }
+  }
+
+  async function salvarNoDrive() {
+    setErro("");
+    setSincronizando(true);
+    try {
+      const json = JSON.stringify(exportData(), null, 2);
+      const id = await uploadBackup(token, fileId, json);
+      setFileId(id);
+      setLastSync(new Date().toISOString());
+    } catch (err) {
+      setErro(err.message || "Falha ao salvar no Google Drive.");
+    } finally {
+      setSincronizando(false);
+    }
+  }
+
+  async function carregarDoDrive() {
+    setErro("");
+    setSincronizando(true);
+    try {
+      let id = fileId;
+      if (!id) {
+        const existente = await findBackupFile(token);
+        if (!existente) throw new Error(`Nenhum backup encontrado no Drive ainda (arquivo "${BACKUP_FILENAME}"). Use "Salvar no Drive" primeiro.`);
+        id = existente.id;
+        setFileId(id);
+      }
+      const data = await downloadBackup(token, id);
+      onCarregado(data);
+      setLastSync(new Date().toISOString());
+    } catch (err) {
+      setErro(err.message || "Falha ao carregar do Google Drive.");
+    } finally {
+      setSincronizando(false);
+    }
+  }
+
+  return (
+    <div className="mt-4 pt-3 border-t border-ink-700">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-display text-gold-400">☁ Sincronização com Google Drive</h3>
+        <button onClick={() => setConfigAberta((v) => !v)} className="text-xs text-parchment-300/50 hover:text-gold-400">
+          {configAberta ? "ocultar configuração" : "⚙ configurar"}
+        </button>
+      </div>
+
+      {configAberta && (
+        <div className="mt-2 flex flex-col gap-2">
+          <p className="text-[11px] text-parchment-300/50 leading-relaxed">
+            Para sincronizar sem servidor, o app usa login direto com sua conta Google (escopo restrito ao próprio arquivo de backup, sem acesso ao resto do seu Drive). Isso exige um "Client ID" OAuth criado por você, de graça, no Google Cloud Console:
+          </p>
+          <ol className="text-[11px] text-parchment-300/50 list-decimal list-inside leading-relaxed">
+            <li>Acesse console.cloud.google.com e crie um projeto.</li>
+            <li>Em "APIs e Serviços" → "Biblioteca", ative a <b>Google Drive API</b>.</li>
+            <li>Em "Tela de consentimento OAuth", escolha "Externo", preencha nome/e-mail e adicione seu próprio e-mail como usuário de teste (não precisa publicar).</li>
+            <li>Em "Credenciais" → "Criar credenciais" → "ID do cliente OAuth", tipo "Aplicativo da Web".</li>
+            <li>Em "Origens JavaScript autorizadas", adicione a URL deste site (ex: <code>https://lucaskircher90-max.github.io</code>).</li>
+            <li>Copie o Client ID gerado (termina em <code>.apps.googleusercontent.com</code>) e cole abaixo.</li>
+          </ol>
+          <Field label="Google OAuth Client ID">
+            <TextInput value={clientId} onChange={setClientId} placeholder="algo.apps.googleusercontent.com" />
+          </Field>
+          <p className="text-[11px] text-parchment-300/40">
+            Precisa ser configurado uma vez em cada navegador/computador (é uma informação pública, não secreta).
+          </p>
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2 mt-2">
+        {!conectado ? (
+          <Button onClick={conectar} disabled={!clientId || conectando}>
+            {conectando ? "Conectando..." : "🔌 Conectar ao Google Drive"}
+          </Button>
+        ) : (
+          <>
+            <Button variant="gold" onClick={salvarNoDrive} disabled={sincronizando}>
+              {sincronizando ? "Enviando..." : "☁ Salvar no Drive"}
+            </Button>
+            <Button onClick={carregarDoDrive} disabled={sincronizando}>
+              {sincronizando ? "Carregando..." : "⬇ Carregar do Drive"}
+            </Button>
+            <Button variant="ghost" onClick={() => setToken("")}>Desconectar</Button>
+          </>
+        )}
+        {lastSync && <span className="text-[11px] text-parchment-300/40">Última sincronização: {new Date(lastSync).toLocaleString("pt-BR")}</span>}
+      </div>
+
+      {erro && <p className="text-xs text-blood-500 mt-2">{erro}</p>}
+    </div>
   );
 }
 
