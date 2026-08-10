@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { to: "/historia", label: "História" },
   { to: "/itens", label: "Itens" },
   { to: "/mapas", label: "Mapas" },
+  { to: "/tarot", label: "Tarot" },
 ];
 
 export default function Layout() {

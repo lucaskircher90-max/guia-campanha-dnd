@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo } from "react";
 import { useLocalStorage } from "../lib/useLocalStorage";
 import {
-  newPlayerCharacter, newNpc, newMilestone, newEncounter, newItem, newMapEntry, newEncounterTemplate,
+  newPlayerCharacter, newNpc, newMilestone, newEncounter, newItem, newMapEntry, newEncounterTemplate, newTarotCard,
 } from "../lib/models";
 
 const DataContext = createContext(null);
@@ -15,6 +15,7 @@ export function DataProvider({ children }) {
   const [items, setItems] = useLocalStorage("dnd.items", []);
   const [maps, setMaps] = useLocalStorage("dnd.maps", []);
   const [encounterTemplates, setEncounterTemplates] = useLocalStorage("dnd.encounterTemplates", []);
+  const [tarotCards, setTarotCards] = useLocalStorage("dnd.tarotCards", []);
 
   const api = useMemo(() => ({
     // Campanha
@@ -112,10 +113,24 @@ export function DataProvider({ children }) {
       setMaps((prev) => prev.filter((m) => m.id !== id));
     },
 
+    // Cartas de Tarot
+    tarotCards,
+    addTarotCard: (overrides) => {
+      const card = newTarotCard(overrides);
+      setTarotCards((prev) => [...prev, card]);
+      return card;
+    },
+    updateTarotCard: (id, patch) => {
+      setTarotCards((prev) => prev.map((c) => (c.id === id ? { ...c, ...patch } : c)));
+    },
+    removeTarotCard: (id) => {
+      setTarotCards((prev) => prev.filter((c) => c.id !== id));
+    },
+
     // Backup / transferência entre dispositivos
     exportData: () => ({
       formato: "guia-campanha-dnd",
-      versao: 3,
+      versao: 4,
       exportadoEm: new Date().toISOString(),
       campaign,
       players,
@@ -125,6 +140,7 @@ export function DataProvider({ children }) {
       items,
       maps,
       encounterTemplates,
+      tarotCards,
     }),
     importData: (data) => {
       if (!data || typeof data !== "object") throw new Error("Arquivo inválido.");
@@ -136,10 +152,11 @@ export function DataProvider({ children }) {
       if (Array.isArray(data.items)) setItems(data.items);
       if (Array.isArray(data.maps)) setMaps(data.maps);
       if (Array.isArray(data.encounterTemplates)) setEncounterTemplates(data.encounterTemplates);
+      if (Array.isArray(data.tarotCards)) setTarotCards(data.tarotCards);
     },
   }), [
-    players, npcs, milestones, encounter, campaign, items, maps, encounterTemplates,
-    setPlayers, setNpcs, setMilestones, setEncounter, setCampaign, setItems, setMaps, setEncounterTemplates,
+    players, npcs, milestones, encounter, campaign, items, maps, encounterTemplates, tarotCards,
+    setPlayers, setNpcs, setMilestones, setEncounter, setCampaign, setItems, setMaps, setEncounterTemplates, setTarotCards,
   ]);
 
   return <DataContext.Provider value={api}>{children}</DataContext.Provider>;

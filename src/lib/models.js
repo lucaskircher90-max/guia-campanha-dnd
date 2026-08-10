@@ -192,6 +192,17 @@ export function newMapEntry(overrides = {}) {
   };
 }
 
+export function newTarotCard(overrides = {}) {
+  return {
+    id: id(),
+    createdAt: Date.now(),
+    nome: "Nova Carta",
+    imagemUrl: "", // arte da frente, enviada pelo mestre
+    significado: "",
+    ...overrides,
+  };
+}
+
 // combatente "molde": nome, tipo, ca, pvMax, iniciativaMod, notas, sourceId
 export function newEncounterTemplateCombatant(overrides = {}) {
   return {
