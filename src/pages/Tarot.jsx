@@ -56,7 +56,7 @@ function FlipCard({ revelada, imagemUrl, nome, onClick, disabled, className = ""
         </div>
         <div className="tarot-flip-face tarot-flip-face-back bg-ink-900 border border-gold-600 flex items-center justify-center">
           {imagemUrl ? (
-            <img src={imagemUrl} alt={nome} className="w-full h-full object-cover" />
+            <img src={imagemUrl} alt={nome} className="w-full h-full object-contain" />
           ) : (
             <span className="text-[10px] text-parchment-300/40 p-1 text-center">{nome}</span>
           )}
@@ -247,7 +247,7 @@ function DeckManager() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {tarotCards.map((c) => (
                 <div key={c.id} className="flex gap-2 p-2 rounded border border-ink-700">
-                  <img src={c.imagemUrl} alt={c.nome} className="w-14 aspect-[2/3] object-cover rounded border border-ink-600 shrink-0" />
+                  <img src={c.imagemUrl} alt={c.nome} className="w-14 aspect-[2/3] object-contain bg-ink-900 rounded border border-ink-600 shrink-0" />
                   <div className="flex-1 flex flex-col gap-1 min-w-0">
                     <TextInput value={c.nome} onChange={(v) => updateTarotCard(c.id, { nome: v })} className="!text-sm" />
                     <TextArea
