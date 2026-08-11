@@ -12,6 +12,16 @@ const POSICOES = [
   "Resultado Provável",
 ];
 
+// Disposição em cruz para o Modo Jogadores: carta 1 em cima, 2/3/4 na
+// fileira do meio (esquerda/centro/direita), 5 embaixo.
+const CROSS_SLOTS = [
+  "col-start-2 row-start-1",
+  "col-start-1 row-start-2",
+  "col-start-2 row-start-2",
+  "col-start-3 row-start-2",
+  "col-start-2 row-start-3",
+];
+
 let uidSeq = 0;
 function nextUid() {
   uidSeq += 1;
@@ -96,31 +106,50 @@ function ReadingTable() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-5 gap-1.5 sm:gap-3 mb-4">
-        {POSICOES.map((pos, i) => {
-          const card = escolhidas[i];
-          return (
-            <div key={i} className="flex flex-col items-center gap-1">
-              <div className="w-full aspect-[2/3]">
+      {modoJogadores ? (
+        <div className="grid grid-cols-3 grid-rows-3 gap-3 sm:gap-5 max-w-xs sm:max-w-lg md:max-w-xl mx-auto mb-4">
+          {CROSS_SLOTS.map((slotClass, i) => {
+            const card = escolhidas[i];
+            return (
+              <div key={i} className={`${slotClass} aspect-[2/3]`}>
                 {card ? (
                   <FlipCard revelada imagemUrl={card.imagemUrl} nome={card.nome} disabled className="w-full h-full" />
                 ) : (
-                  <div className="w-full h-full rounded border border-dashed border-ink-600 flex items-center justify-center text-parchment-300/30 text-xs">
+                  <div className="w-full h-full rounded border border-dashed border-ink-600 flex items-center justify-center text-parchment-300/20 text-sm">
                     {i + 1}
                   </div>
                 )}
               </div>
-              {card && <span className="text-[10px] text-parchment-100 text-center font-display leading-tight">{card.nome}</span>}
-              {!modoJogadores && card && (
-                <span className="text-[9px] text-gold-400/80 text-center uppercase tracking-wide leading-tight">{pos}</span>
-              )}
-              {!modoJogadores && card?.significado && (
-                <p className="text-[9px] text-parchment-300/40 text-center leading-snug">{card.significado}</p>
-              )}
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="grid grid-cols-5 gap-1.5 sm:gap-3 mb-4">
+          {POSICOES.map((pos, i) => {
+            const card = escolhidas[i];
+            return (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <div className="w-full aspect-[2/3]">
+                  {card ? (
+                    <FlipCard revelada imagemUrl={card.imagemUrl} nome={card.nome} disabled className="w-full h-full" />
+                  ) : (
+                    <div className="w-full h-full rounded border border-dashed border-ink-600 flex items-center justify-center text-parchment-300/30 text-xs">
+                      {i + 1}
+                    </div>
+                  )}
+                </div>
+                {card && <span className="text-[10px] text-parchment-100 text-center font-display leading-tight">{card.nome}</span>}
+                {card && (
+                  <span className="text-[9px] text-gold-400/80 text-center uppercase tracking-wide leading-tight">{pos}</span>
+                )}
+                {card?.significado && (
+                  <p className="text-[9px] text-parchment-300/40 text-center leading-snug">{card.significado}</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
         <span className="text-xs text-parchment-300/50">
@@ -150,7 +179,7 @@ function ReadingTable() {
           {mesa
             .filter((m) => !m.revelada)
             .map((item) => (
-              <div key={item.uid} style={{ transform: `rotate(${item.rot}deg)` }} className="w-14 sm:w-16 aspect-[2/3]">
+              <div key={item.uid} style={{ transform: `rotate(${item.rot}deg)` }} className="w-20 sm:w-24 aspect-[2/3]">
                 <FlipCard revelada={false} onClick={() => escolherCarta(item)} disabled={leituraCompleta} className="w-full h-full" />
               </div>
             ))}
