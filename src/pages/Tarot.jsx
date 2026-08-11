@@ -161,7 +161,7 @@ function ReadingTable() {
 }
 
 function DeckManager() {
-  const { tarotCards, addTarotCard, updateTarotCard, removeTarotCard } = useData();
+  const { tarotCards, addTarotCard, updateTarotCard, removeTarotCard, tarotStorageError } = useData();
   const fileInputRef = useRef(null);
   const [aberto, setAberto] = useState(tarotCards.length === 0);
   const [enviando, setEnviando] = useState(false);
@@ -211,6 +211,7 @@ function DeckManager() {
             frente é sua arte.
           </p>
           {erro && <p className="text-xs text-blood-500">{erro}</p>}
+          {tarotStorageError && <p className="text-xs text-blood-500">⚠ {tarotStorageError}</p>}
 
           {tarotCards.length === 0 ? (
             <p className="text-xs text-parchment-300/40">Nenhuma carta cadastrada ainda. Envie as artes das frentes das suas cartas de tarot.</p>

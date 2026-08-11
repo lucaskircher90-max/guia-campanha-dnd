@@ -1,8 +1,11 @@
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLocalStorage } from "../lib/useLocalStorage";
 import {
   newPlayerCharacter, newNpc, newMilestone, newEncounter, newItem, newMapEntry, newEncounterTemplate, newTarotCard,
 } from "../lib/models";
+import { tarotBulkReplace, tarotDelete, tarotGetAll, tarotPut } from "../lib/tarotDb";
+
+const LEGACY_TAROT_KEY = "dnd.tarotCards";
 
 const DataContext = createContext(null);
 
@@ -15,7 +18,49 @@ export function DataProvider({ children }) {
   const [items, setItems] = useLocalStorage("dnd.items", []);
   const [maps, setMaps] = useLocalStorage("dnd.maps", []);
   const [encounterTemplates, setEncounterTemplates] = useLocalStorage("dnd.encounterTemplates", []);
-  const [tarotCards, setTarotCards] = useLocalStorage("dnd.tarotCards", []);
+
+  // Cartas de Tarot: guardadas em IndexedDB (cota bem maior que o
+  // localStorage), já que as imagens de um baralho inteiro estouram
+  // facilmente os poucos MB que o localStorage permite por site.
+  const [tarotCards, setTarotCardsState] = useState([]);
+  const [tarotStorageError, setTarotStorageError] = useState("");
+
+  useEffect(() => {
+    let ativo = true;
+    async function carregar() {
+      try {
+        const doIdb = await tarotGetAll();
+        if (doIdb.length === 0) {
+          const legado = window.localStorage.getItem(LEGACY_TAROT_KEY);
+          if (legado) {
+            const parsed = JSON.parse(legado);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              await tarotBulkReplace(parsed);
+              window.localStorage.removeItem(LEGACY_TAROT_KEY);
+              if (ativo) setTarotCardsState(parsed);
+              return;
+            }
+          }
+        }
+        if (ativo) setTarotCardsState(doIdb);
+      } catch (err) {
+        console.error("Falha ao carregar cartas de tarot do IndexedDB:", err);
+      }
+    }
+    carregar();
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
+  function persistTarotWrite(promise) {
+    promise
+      .then(() => setTarotStorageError(""))
+      .catch((err) => {
+        console.error("Falha ao salvar carta de tarot:", err);
+        setTarotStorageError("Não foi possível salvar essa alteração no armazenamento do navegador. Tente novamente ou libere espaço.");
+      });
+  }
 
   const api = useMemo(() => ({
     // Campanha
@@ -113,18 +158,26 @@ export function DataProvider({ children }) {
       setMaps((prev) => prev.filter((m) => m.id !== id));
     },
 
-    // Cartas de Tarot
+    // Cartas de Tarot (persistidas em IndexedDB, não localStorage)
     tarotCards,
+    tarotStorageError,
     addTarotCard: (overrides) => {
       const card = newTarotCard(overrides);
-      setTarotCards((prev) => [...prev, card]);
+      setTarotCardsState((prev) => [...prev, card]);
+      persistTarotWrite(tarotPut(card));
       return card;
     },
     updateTarotCard: (id, patch) => {
-      setTarotCards((prev) => prev.map((c) => (c.id === id ? { ...c, ...patch } : c)));
+      setTarotCardsState((prev) => {
+        const next = prev.map((c) => (c.id === id ? { ...c, ...patch } : c));
+        const atualizada = next.find((c) => c.id === id);
+        if (atualizada) persistTarotWrite(tarotPut(atualizada));
+        return next;
+      });
     },
     removeTarotCard: (id) => {
-      setTarotCards((prev) => prev.filter((c) => c.id !== id));
+      setTarotCardsState((prev) => prev.filter((c) => c.id !== id));
+      persistTarotWrite(tarotDelete(id));
     },
 
     // Backup / transferência entre dispositivos
@@ -152,11 +205,14 @@ export function DataProvider({ children }) {
       if (Array.isArray(data.items)) setItems(data.items);
       if (Array.isArray(data.maps)) setMaps(data.maps);
       if (Array.isArray(data.encounterTemplates)) setEncounterTemplates(data.encounterTemplates);
-      if (Array.isArray(data.tarotCards)) setTarotCards(data.tarotCards);
+      if (Array.isArray(data.tarotCards)) {
+        setTarotCardsState(data.tarotCards);
+        persistTarotWrite(tarotBulkReplace(data.tarotCards));
+      }
     },
   }), [
-    players, npcs, milestones, encounter, campaign, items, maps, encounterTemplates, tarotCards,
-    setPlayers, setNpcs, setMilestones, setEncounter, setCampaign, setItems, setMaps, setEncounterTemplates, setTarotCards,
+    players, npcs, milestones, encounter, campaign, items, maps, encounterTemplates, tarotCards, tarotStorageError,
+    setPlayers, setNpcs, setMilestones, setEncounter, setCampaign, setItems, setMaps, setEncounterTemplates,
   ]);
 
   return <DataContext.Provider value={api}>{children}</DataContext.Provider>;
