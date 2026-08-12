@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: "/itens", label: "Itens" },
   { to: "/mapas", label: "Mapas" },
   { to: "/tarot", label: "Tarot" },
+  { to: "/magias", label: "Magias" },
 ];
 
 export default function Layout() {

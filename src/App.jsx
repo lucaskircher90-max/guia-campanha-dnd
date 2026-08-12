@@ -14,6 +14,7 @@ import ItemSheet from "./pages/ItemSheet";
 import MapsList from "./pages/MapsList";
 import MapViewer from "./pages/MapViewer";
 import Tarot from "./pages/Tarot";
+import SpellsList from "./pages/SpellsList";
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/mapas" element={<MapsList />} />
             <Route path="/mapas/:id" element={<MapViewer />} />
             <Route path="/tarot" element={<Tarot />} />
+            <Route path="/magias" element={<SpellsList />} />
           </Route>
         </Routes>
       </HashRouter>
