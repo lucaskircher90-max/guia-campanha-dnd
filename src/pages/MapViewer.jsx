@@ -310,8 +310,8 @@ export default function MapViewer() {
     if (modoJogadoresRef.current) {
       if (!movedRef.current) {
         const wp = toWorld(e.clientX, e.clientY);
-        const hit = hitTestShape(shapesRef.current, wp);
-        if (hit) persistShapes(shapesRef.current.map((s) => (s.id === hit.id ? { ...s, oculto: false } : s)));
+        const hit = hitTestShape(shapesRef.current, wp, { anyState: true });
+        if (hit) persistShapes(shapesRef.current.map((s) => (s.id === hit.id ? { ...s, oculto: !s.oculto } : s)));
       }
       return;
     }
@@ -385,7 +385,18 @@ export default function MapViewer() {
     persistShapes(shapesRef.current.map((s) => ({ ...s, oculto: true })));
   }
 
-  useEffect(() => { draw(); }, [modoJogadores, draw]);
+  // Ao entrar/sair da tela cheia do Modo Jogadores o contêiner muda de
+  // tamanho — reajusta o zoom pra o mapa preencher o espaço novo, em vez de
+  // ficar do tamanho antigo boiando num canvas maior (ou cortado, num menor).
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (canvas && container) {
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+    }
+    fitToContainer();
+  }, [modoJogadores, fitToContainer]);
 
   if (!map) {
     return (
@@ -396,22 +407,22 @@ export default function MapViewer() {
     );
   }
 
-  const formasOcultas = shapes.filter((s) => s.oculto).length;
-
   return (
-    <div className="flex flex-col gap-3" style={{ height: "calc(100vh - 140px)" }}>
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-3">
-          <Link to="/mapas" className="text-gold-400 text-sm hover:underline">← Mapas</Link>
-          <h2 className="font-display text-xl text-parchment-50">{map.nome}</h2>
+    <div
+      className={modoJogadores ? "fixed inset-0 z-50 bg-ink-950 flex flex-col" : "flex flex-col gap-3"}
+      style={modoJogadores ? undefined : { height: "calc(100vh - 140px)" }}
+    >
+      {!modoJogadores && (
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-3">
+            <Link to="/mapas" className="text-gold-400 text-sm hover:underline">← Mapas</Link>
+            <h2 className="font-display text-xl text-parchment-50">{map.nome}</h2>
+          </div>
+          <Button variant="gold" onClick={() => setModoJogadores(true)}>
+            🎬 Modo Jogadores
+          </Button>
         </div>
-        <Button
-          variant={modoJogadores ? "primary" : "gold"}
-          onClick={() => setModoJogadores((v) => !v)}
-        >
-          {modoJogadores ? "🖌️ Voltar ao Modo Mestre" : "🎬 Modo Jogadores"}
-        </Button>
-      </div>
+      )}
 
       {!modoJogadores && (
         <div className="flex flex-wrap items-center gap-3 card p-2.5">
@@ -457,7 +468,11 @@ export default function MapViewer() {
         </div>
       )}
 
-      <div ref={containerRef} className="flex-1 min-h-0 relative rounded border border-ink-600 overflow-hidden" style={{ touchAction: "none" }}>
+      <div
+        ref={containerRef}
+        className={modoJogadores ? "flex-1 min-h-0 relative overflow-hidden" : "flex-1 min-h-0 relative rounded border border-ink-600 overflow-hidden"}
+        style={{ touchAction: "none" }}
+      >
         {!ready && (
           <div className="absolute inset-0 flex items-center justify-center text-parchment-300/40 text-sm">
             Carregando mapa...
@@ -476,16 +491,20 @@ export default function MapViewer() {
           onPointerUp={onPointerUp}
           onPointerLeave={onPointerUp}
         />
-        {modoJogadores && formasOcultas + (map.fogDataUrl ? 1 : 0) > 0 && (
-          <span className="absolute bottom-2 right-2 text-[10px] px-2 py-1 rounded-full bg-ink-950/70 text-parchment-300/60 border border-ink-600">
-            Clique numa área oculta para revelar
-          </span>
+        {modoJogadores && (
+          <Button
+            variant="primary"
+            className="absolute top-3 right-3 z-10"
+            onClick={() => setModoJogadores(false)}
+          >
+            🖌️ Voltar ao Modo Mestre
+          </Button>
         )}
       </div>
 
       {!modoJogadores && (
         <p className="text-[10px] text-parchment-300/30">
-          Mapas novos começam totalmente visíveis. Retângulo/Círculo desenham formas opacas com clique-e-arraste pra cobrir salas antes da sessão — no Modo Jogadores, clique numa forma pra revelar aquela área (fica guardada, dá pra reocultar com "Ocultar Tudo"). O pincel Revelar/Ocultar continua disponível para ajustes finos. Tudo fica salvo junto com o mapa.
+          Mapas novos começam totalmente visíveis. Retângulo/Círculo desenham formas opacas com clique-e-arraste pra cobrir salas antes da sessão — no Modo Jogadores, clique numa forma pra revelar aquela área, e clique de novo pra ocultar. O pincel Revelar/Ocultar continua disponível para ajustes finos. O Modo Jogadores ocupa a tela inteira, sem o resto da ferramenta. Tudo fica salvo junto com o mapa.
         </p>
       )}
     </div>
