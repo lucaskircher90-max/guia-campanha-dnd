@@ -95,7 +95,7 @@ function ReadingTable({ modoJogadores, setModoJogadores }) {
           🖌️ Voltar ao Modo Mestre
         </Button>
 
-        <div className="grid grid-cols-5 gap-3 sm:gap-6 w-full max-w-5xl">
+        <div className="grid grid-cols-5 gap-4 sm:gap-8 w-full max-w-7xl">
           {POSICOES.map((_, i) => {
             const card = escolhidas[i];
             return (
@@ -109,18 +109,18 @@ function ReadingTable({ modoJogadores, setModoJogadores }) {
                     </div>
                   )}
                 </div>
-                {card && <span className="text-sm sm:text-base text-parchment-100 text-center font-display">{card.nome}</span>}
+                {card && <span className="text-base sm:text-lg text-parchment-100 text-center font-display">{card.nome}</span>}
               </div>
             );
           })}
         </div>
 
         {mesa.filter((m) => !m.revelada).length > 0 && (
-          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 max-w-5xl">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 max-w-4xl">
             {mesa
               .filter((m) => !m.revelada)
               .map((item) => (
-                <div key={item.uid} style={{ transform: `rotate(${item.rot}deg)` }} className="w-24 sm:w-32 aspect-[2/3]">
+                <div key={item.uid} style={{ transform: `rotate(${item.rot}deg)` }} className="w-14 sm:w-16 aspect-[2/3]">
                   <FlipCard revelada={false} onClick={() => escolherCarta(item)} disabled={leituraCompleta} className="w-full h-full" />
                 </div>
               ))}
