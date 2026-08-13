@@ -28,11 +28,13 @@ function embaralhar(lista) {
 }
 
 export default function Tarot() {
+  const [modoJogadores, setModoJogadores] = useState(false);
+
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-display text-2xl text-gold-400">🔮 Tarot</h2>
-      <ReadingTable />
-      <DeckManager />
+      {!modoJogadores && <h2 className="font-display text-2xl text-gold-400">🔮 Tarot</h2>}
+      <ReadingTable modoJogadores={modoJogadores} setModoJogadores={setModoJogadores} />
+      {!modoJogadores && <DeckManager />}
     </div>
   );
 }
@@ -56,9 +58,8 @@ function FlipCard({ revelada, imagemUrl, nome, onClick, disabled, className = ""
   );
 }
 
-function ReadingTable() {
+function ReadingTable({ modoJogadores, setModoJogadores }) {
   const { tarotCards } = useData();
-  const [modoJogadores, setModoJogadores] = useState(false);
   const [mesa, setMesa] = useState([]);
   const [escolhidas, setEscolhidas] = useState([]);
   const [erro, setErro] = useState("");
@@ -83,16 +84,62 @@ function ReadingTable() {
 
   const leituraCompleta = escolhidas.length >= 5;
 
+  if (modoJogadores) {
+    return (
+      <div className="fixed inset-0 z-50 bg-ink-950 flex flex-col items-center justify-center gap-8 p-6 overflow-y-auto">
+        <Button
+          variant="primary"
+          className="absolute top-3 right-3 z-10"
+          onClick={() => setModoJogadores(false)}
+        >
+          🖌️ Voltar ao Modo Mestre
+        </Button>
+
+        <div className="grid grid-cols-5 gap-3 sm:gap-6 w-full max-w-5xl">
+          {POSICOES.map((_, i) => {
+            const card = escolhidas[i];
+            return (
+              <div key={i} className="flex flex-col items-center gap-2">
+                <div className="w-full aspect-[2/3]">
+                  {card ? (
+                    <FlipCard revelada imagemUrl={card.imagemUrl} nome={card.nome} disabled className="w-full h-full" />
+                  ) : (
+                    <div className="w-full h-full rounded border border-dashed border-ink-700 flex items-center justify-center text-parchment-300/20 text-lg">
+                      {i + 1}
+                    </div>
+                  )}
+                </div>
+                {card && <span className="text-sm sm:text-base text-parchment-100 text-center font-display">{card.nome}</span>}
+              </div>
+            );
+          })}
+        </div>
+
+        {mesa.filter((m) => !m.revelada).length > 0 && (
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 max-w-5xl">
+            {mesa
+              .filter((m) => !m.revelada)
+              .map((item) => (
+                <div key={item.uid} style={{ transform: `rotate(${item.rot}deg)` }} className="w-24 sm:w-32 aspect-[2/3]">
+                  <FlipCard revelada={false} onClick={() => escolherCarta(item)} disabled={leituraCompleta} className="w-full h-full" />
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <Card title="🔮 Mesa de Leitura">
       <div className="flex items-start justify-between flex-wrap gap-2 mb-3">
         <p className="text-xs text-parchment-300/60 max-w-xl">
           As cartas ficam viradas para baixo. Clique em qualquer uma para tirá-la — ela vira e ocupa a próxima posição da
-          tiragem, revelando só aquela carta. Em Modo Jogadores, o nome de cada posição fica oculto; ative o Modo Mestre
-          para consultá-lo durante a interpretação.
+          tiragem, revelando só aquela carta. O Modo Jogadores ocupa a tela inteira, com as cartas em destaque e sem o
+          nome de cada posição nem o resto da ferramenta.
         </p>
-        <Button variant={modoJogadores ? "primary" : "gold"} onClick={() => setModoJogadores((v) => !v)}>
-          {modoJogadores ? "🖌️ Voltar ao Modo Mestre" : "🎬 Modo Jogadores"}
+        <Button variant="gold" onClick={() => setModoJogadores(true)}>
+          🎬 Modo Jogadores
         </Button>
       </div>
 
@@ -111,7 +158,7 @@ function ReadingTable() {
                 )}
               </div>
               {card && <span className="text-[11px] text-parchment-100 text-center font-display leading-tight">{card.nome}</span>}
-              {!modoJogadores && card && (
+              {card && (
                 <span className="text-[9px] text-gold-400/80 text-center uppercase tracking-wide leading-tight">{pos}</span>
               )}
               {card?.significado && (
