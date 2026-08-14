@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { Button, Card, Checkbox, ConfirmButton, Field, NumberInput, TextArea, TextInput } from "../components/ui";
 import { ABILITIES, SKILLS, abilityMod, fmtMod, proficiencyBonusForLevel } from "../lib/dnd";
+import { exportPlayerCharacterPdf } from "../lib/pdfExport";
 
 const TABS = ["Ficha Principal", "Aparência & História", "Conjuração", "Notas do Mestre"];
 
@@ -11,6 +12,7 @@ export default function PlayerSheet() {
   const { players, updatePlayer, removePlayer } = useData();
   const navigate = useNavigate();
   const [tab, setTab] = useState(TABS[0]);
+  const [exportando, setExportando] = useState(false);
 
   const pc = players.find((p) => p.id === id);
   if (!pc) {
@@ -30,18 +32,42 @@ export default function PlayerSheet() {
   const percepcaoBonus = skillBonus(pc, "percepcao", pb);
   const passivaPercepcao = 10 + percepcaoBonus + (Number(pc.percepcaoPassivaExtra) || 0);
 
+  async function exportarPdf() {
+    setExportando(true);
+    try {
+      const bytes = await exportPlayerCharacterPdf(pc);
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const slug = (pc.nome || "personagem").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ficha-${slug || "personagem"}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExportando(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <Link to="/jogadores" className="text-gold-400 text-sm hover:underline">← Jogadores</Link>
-        <ConfirmButton
-          onConfirm={() => {
-            removePlayer(pc.id);
-            navigate("/jogadores");
-          }}
-        >
-          Remover Ficha
-        </ConfirmButton>
+        <div className="flex gap-2">
+          <Button onClick={exportarPdf} disabled={exportando}>
+            {exportando ? "Gerando..." : "⬇ Exportar PDF"}
+          </Button>
+          <ConfirmButton
+            onConfirm={() => {
+              removePlayer(pc.id);
+              navigate("/jogadores");
+            }}
+          >
+            Remover Ficha
+          </ConfirmButton>
+        </div>
       </div>
 
       {/* Cabeçalho */}
