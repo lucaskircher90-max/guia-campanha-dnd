@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useData } from "../context/DataContext";
-import { Button, Card } from "../components/ui";
+import { Button, Card, Checkbox, ConfirmButton, Field, TextArea, TextInput } from "../components/ui";
 
 const MAX_WORLD_DIM = 1600;
 const ZOOM_MIN = 0.15;
@@ -15,7 +15,10 @@ const TOOLS = [
   { key: "retangulo", label: "▭ Retângulo" },
   { key: "circulo", label: "⬤ Círculo" },
   { key: "remover-forma", label: "🗑️ Remover Forma" },
+  { key: "pin", label: "📍 Adicionar Pin" },
 ];
+
+const PIN_RADIUS = 13;
 
 function hitTestShape(shapes, pt, { anyState = false } = {}) {
   for (let i = shapes.length - 1; i >= 0; i--) {
@@ -40,6 +43,7 @@ export default function MapViewer() {
 
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
+  const overlayRef = useRef(null);
   const fogCanvasRef = useRef(null);
   const mapImgRef = useRef(null);
   const worldRef = useRef({ w: 0, h: 0 });
@@ -61,6 +65,8 @@ export default function MapViewer() {
   const [brushSize, setBrushSize] = useState(80);
   const [modoJogadores, setModoJogadores] = useState(false);
   const [shapes, setShapes] = useState([]);
+  const [pins, setPins] = useState([]);
+  const [editingPinId, setEditingPinId] = useState(null);
 
   toolRef.current = tool;
   brushRef.current = brushSize;
@@ -131,6 +137,13 @@ export default function MapViewer() {
     }
 
     ctx.restore();
+
+    // A camada de pins é HTML sobreposta ao canvas (pra ter texto legível e
+    // popups clicáveis), então recebe a mesma transform de pan/zoom aqui —
+    // assim ela acompanha o mapa em todo lugar onde draw() já é chamado.
+    if (overlayRef.current) {
+      overlayRef.current.style.transform = `translate(${panRef.current.x}px, ${panRef.current.y}px) scale(${zoomRef.current})`;
+    }
   }, []);
 
   const fitToContainer = useCallback(() => {
@@ -217,6 +230,12 @@ export default function MapViewer() {
     draftRef.current = null;
   }, [map?.id]);
 
+  // Carrega os pins salvos para este mapa
+  useEffect(() => {
+    setPins(map?.pins || []);
+    setEditingPinId(null);
+  }, [map?.id]);
+
   function persistFog() {
     if (!map || !fogCanvasRef.current) return;
     updateMap(map.id, { fogDataUrl: fogCanvasRef.current.toDataURL("image/png") });
@@ -227,6 +246,20 @@ export default function MapViewer() {
     setShapes(next);
     if (map) updateMap(map.id, { fogShapes: next });
     draw();
+  }
+
+  function persistPins(next) {
+    setPins(next);
+    if (map) updateMap(map.id, { pins: next });
+  }
+
+  function updatePin(id, patch) {
+    persistPins(pins.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+  }
+
+  function removePin(id) {
+    persistPins(pins.filter((p) => p.id !== id));
+    setEditingPinId(null);
   }
 
   function toWorld(clientX, clientY) {
@@ -334,6 +367,11 @@ export default function MapViewer() {
       const wp = toWorld(e.clientX, e.clientY);
       const hit = hitTestShape(shapesRef.current, wp, { anyState: true });
       if (hit) persistShapes(shapesRef.current.filter((s) => s.id !== hit.id));
+    } else if (t === "pin" && !movedRef.current) {
+      const wp = toWorld(e.clientX, e.clientY);
+      const novo = { id: crypto.randomUUID(), x: wp.x, y: wp.y, titulo: "", descricao: "", revelado: false };
+      persistPins([...pins, novo]);
+      setEditingPinId(novo.id);
     }
   }
 
@@ -397,6 +435,9 @@ export default function MapViewer() {
     }
     fitToContainer();
   }, [modoJogadores, fitToContainer]);
+
+  const editingPin = pins.find((p) => p.id === editingPinId);
+  const pinsVisiveis = modoJogadores ? pins.filter((p) => p.revelado) : pins;
 
   if (!map) {
     return (
@@ -491,6 +532,31 @@ export default function MapViewer() {
           onPointerUp={onPointerUp}
           onPointerLeave={onPointerUp}
         />
+
+        <div ref={overlayRef} className="absolute inset-0" style={{ transformOrigin: "0 0", pointerEvents: "none" }}>
+          {pinsVisiveis.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => setEditingPinId(p.id)}
+              title={p.titulo || "Pin sem título"}
+              className={`absolute rounded-full flex items-center justify-center text-xs leading-none transition-transform hover:scale-110 ${
+                p.revelado
+                  ? "bg-gold-600 border-2 border-gold-300 shadow-lg"
+                  : "bg-ink-900/70 border-2 border-dashed border-gold-600/70"
+              }`}
+              style={{
+                left: p.x - PIN_RADIUS,
+                top: p.y - PIN_RADIUS,
+                width: PIN_RADIUS * 2,
+                height: PIN_RADIUS * 2,
+                pointerEvents: "auto",
+              }}
+            >
+              📍
+            </button>
+          ))}
+        </div>
+
         {modoJogadores && (
           <Button
             variant="primary"
@@ -500,11 +566,54 @@ export default function MapViewer() {
             🖌️ Voltar ao Modo Mestre
           </Button>
         )}
+
+        {editingPin && !modoJogadores && (
+          <div className="absolute bottom-3 left-3 z-20 w-72 max-w-[90vw] card p-3 flex flex-col gap-2 bg-ink-950/95">
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-wide text-parchment-300/60">📍 Pin</span>
+              <button onClick={() => setEditingPinId(null)} className="text-parchment-300/50 hover:text-parchment-100 text-sm cursor-pointer">✕</button>
+            </div>
+            <Field label="Título">
+              <TextInput
+                value={editingPin.titulo}
+                onChange={(v) => updatePin(editingPin.id, { titulo: v })}
+                placeholder="Ex: Taverna do Javali Dourado"
+                autoFocus
+              />
+            </Field>
+            <Field label="Resumo / o que encontram aqui">
+              <TextArea
+                value={editingPin.descricao}
+                onChange={(v) => updatePin(editingPin.id, { descricao: v })}
+                rows={4}
+                placeholder="O que os jogadores encontram ou podem encontrar neste local..."
+              />
+            </Field>
+            <Checkbox
+              checked={editingPin.revelado}
+              onChange={(v) => updatePin(editingPin.id, { revelado: v })}
+              label="Revelado aos jogadores"
+            />
+            <div className="flex justify-end pt-1">
+              <ConfirmButton onConfirm={() => removePin(editingPin.id)}>Remover pin</ConfirmButton>
+            </div>
+          </div>
+        )}
+
+        {editingPin && modoJogadores && (
+          <div className="absolute bottom-3 left-3 z-20 w-72 max-w-[90vw] card p-3 flex flex-col gap-2 bg-ink-950/95">
+            <div className="flex items-center justify-between">
+              <span className="font-display text-gold-400">{editingPin.titulo || "Ponto de interesse"}</span>
+              <button onClick={() => setEditingPinId(null)} className="text-parchment-300/50 hover:text-parchment-100 text-sm cursor-pointer">✕</button>
+            </div>
+            <p className="text-sm text-parchment-100 whitespace-pre-wrap">{editingPin.descricao || "Sem descrição."}</p>
+          </div>
+        )}
       </div>
 
       {!modoJogadores && (
         <p className="text-[10px] text-parchment-300/30">
-          Mapas novos começam totalmente visíveis. Retângulo/Círculo desenham formas opacas com clique-e-arraste pra cobrir salas antes da sessão — no Modo Jogadores, clique numa forma pra revelar aquela área, e clique de novo pra ocultar. O pincel Revelar/Ocultar continua disponível para ajustes finos. O Modo Jogadores ocupa a tela inteira, sem o resto da ferramenta. Tudo fica salvo junto com o mapa.
+          Mapas novos começam totalmente visíveis. Retângulo/Círculo desenham formas opacas com clique-e-arraste pra cobrir salas antes da sessão — no Modo Jogadores, clique numa forma pra revelar aquela área, e clique de novo pra ocultar. O pincel Revelar/Ocultar continua disponível para ajustes finos. Pin adiciona um ponto de interesse com título e resumo — marque "Revelado aos jogadores" quando eles descobrirem o local. O Modo Jogadores ocupa a tela inteira, sem o resto da ferramenta. Tudo fica salvo junto com o mapa.
         </p>
       )}
     </div>
