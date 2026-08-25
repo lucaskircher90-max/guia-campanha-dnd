@@ -11,7 +11,7 @@ const SCOPE = "https://www.googleapis.com/auth/drive.file";
 export const BACKUP_FILENAME = "guia-campanha-dnd-backup.json";
 
 let gisLoadPromise = null;
-function loadGis() {
+export function loadGis() {
   if (window.google?.accounts?.oauth2) return Promise.resolve();
   if (gisLoadPromise) return gisLoadPromise;
   gisLoadPromise = new Promise((resolve, reject) => {

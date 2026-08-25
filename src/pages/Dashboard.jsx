@@ -1,9 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { Button, Card, Field, TextInput } from "../components/ui";
 import { useLocalStorage } from "../lib/useLocalStorage";
-import { BACKUP_FILENAME, downloadBackup, findBackupFile, requestAccessToken, uploadBackup } from "../lib/googleDrive";
+import { BACKUP_FILENAME, downloadBackup, findBackupFile, loadGis, requestAccessToken, uploadBackup } from "../lib/googleDrive";
 
 export default function Dashboard() {
   const { campaign, setCampaign, players, npcs, milestones, encounter } = useData();
@@ -200,6 +200,14 @@ function GoogleDriveSync({ exportData, onCarregado }) {
   const [erro, setErro] = useState("");
 
   const conectado = !!token;
+
+  // Pré-carrega a lib de login do Google assim que há um Client ID, para que o
+  // clique em "Conectar" chame requestAccessToken() sem nenhum delay de rede
+  // no meio — senão o Chrome pode bloquear o popup por não ver mais o clique
+  // como a origem direta da chamada.
+  useEffect(() => {
+    if (clientId) loadGis().catch(() => {});
+  }, [clientId]);
 
   async function conectar() {
     setErro("");
