@@ -2,8 +2,10 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLocalStorage } from "../lib/useLocalStorage";
 import {
   newPlayerCharacter, newNpc, newMilestone, newEncounter, newItem, newMapEntry, newEncounterTemplate, newTarotCard,
+  newLink,
 } from "../lib/models";
 import { tarotBulkReplace, tarotDelete, tarotGetAll, tarotPut } from "../lib/tarotDb";
+import { sameLink } from "../lib/links";
 
 const LEGACY_TAROT_KEY = "dnd.tarotCards";
 
@@ -18,6 +20,7 @@ export function DataProvider({ children }) {
   const [items, setItems] = useLocalStorage("dnd.items", []);
   const [maps, setMaps] = useLocalStorage("dnd.maps", []);
   const [encounterTemplates, setEncounterTemplates] = useLocalStorage("dnd.encounterTemplates", []);
+  const [links, setLinks] = useLocalStorage("dnd.links", []);
 
   // Cartas de Tarot: guardadas em IndexedDB (cota bem maior que o
   // localStorage), já que as imagens de um baralho inteiro estouram
@@ -158,6 +161,21 @@ export function DataProvider({ children }) {
       setMaps((prev) => prev.filter((m) => m.id !== id));
     },
 
+    // Vínculos entre entidades (NPC, Marco, Item, Mapa/Local, Jogador) —
+    // base da timeline e do grafo de conexões estilo Obsidian.
+    links,
+    addLink: (overrides) => {
+      const link = newLink(overrides);
+      if (!link.deId || !link.paraId) return null;
+      const existente = links.find((l) => sameLink(l, link));
+      if (existente) return existente;
+      setLinks((prev) => [...prev, link]);
+      return link;
+    },
+    removeLink: (id) => {
+      setLinks((prev) => prev.filter((l) => l.id !== id));
+    },
+
     // Cartas de Tarot (persistidas em IndexedDB, não localStorage)
     tarotCards,
     tarotStorageError,
@@ -194,6 +212,7 @@ export function DataProvider({ children }) {
       maps,
       encounterTemplates,
       tarotCards,
+      links,
     }),
     importData: (data) => {
       if (!data || typeof data !== "object") throw new Error("Arquivo inválido.");
@@ -209,10 +228,11 @@ export function DataProvider({ children }) {
         setTarotCardsState(data.tarotCards);
         persistTarotWrite(tarotBulkReplace(data.tarotCards));
       }
+      if (Array.isArray(data.links)) setLinks(data.links);
     },
   }), [
-    players, npcs, milestones, encounter, campaign, items, maps, encounterTemplates, tarotCards, tarotStorageError,
-    setPlayers, setNpcs, setMilestones, setEncounter, setCampaign, setItems, setMaps, setEncounterTemplates,
+    players, npcs, milestones, encounter, campaign, items, maps, encounterTemplates, tarotCards, tarotStorageError, links,
+    setPlayers, setNpcs, setMilestones, setEncounter, setCampaign, setItems, setMaps, setEncounterTemplates, setLinks,
   ]);
 
   return <DataContext.Provider value={api}>{children}</DataContext.Provider>;

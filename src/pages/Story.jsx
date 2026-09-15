@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useData } from "../context/DataContext";
 import { Button, Card, Checkbox, Field, TextArea, TextInput } from "../components/ui";
+import RelationsPanel from "../components/RelationsPanel";
 
 const TIPOS = ["Marco", "Revelação", "Combate", "NPC", "Local", "Item"];
 
@@ -177,6 +178,7 @@ function MilestoneRow({ milestone, expanded, onToggleExpand, onUpdate, onRemove 
           <Field label="Descrição / Detalhes">
             <TextArea value={milestone.descricao} onChange={(v) => onUpdate({ descricao: v })} rows={4} />
           </Field>
+          <RelationsPanel tipo="milestone" id={milestone.id} title="Relações" />
         </div>
       )}
     </div>

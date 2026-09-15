@@ -1,6 +1,7 @@
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { Button, Card, Checkbox, ConfirmButton, Field, NumberInput, TextArea, TextInput } from "../components/ui";
+import RelationsPanel from "../components/RelationsPanel";
 import { ABILITIES, abilityMod, fmtMod } from "../lib/dnd";
 
 export default function NpcSheet() {
@@ -59,6 +60,7 @@ export default function NpcSheet() {
           <Card title="Notas do Mestre (privado)">
             <TextArea value={npc.notasMestre} onChange={(v) => patch({ notasMestre: v })} rows={5} placeholder="Segredos, motivações ocultas, planos..." />
           </Card>
+          <RelationsPanel tipo="npc" id={npc.id} />
         </div>
 
         {/* Stat block estilo Manual dos Monstros */}

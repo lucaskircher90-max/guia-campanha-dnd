@@ -132,6 +132,21 @@ export function newMilestone(overrides = {}) {
   };
 }
 
+// Vínculo genérico entre duas entidades da campanha (NPC, Marco, Item, Mapa/Local,
+// Jogador) — usado pela timeline e pelo grafo de conexões estilo Obsidian.
+export function newLink(overrides = {}) {
+  return {
+    id: id(),
+    createdAt: Date.now(),
+    deTipo: "npc",
+    deId: "",
+    paraTipo: "npc",
+    paraId: "",
+    rotulo: "",
+    ...overrides,
+  };
+}
+
 export function newCombatant(overrides = {}) {
   return {
     id: id(),
