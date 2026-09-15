@@ -4,6 +4,7 @@ import { useData } from "../context/DataContext";
 import { Button, Card, Field, TextInput } from "../components/ui";
 import { useLocalStorage } from "../lib/useLocalStorage";
 import { BACKUP_FILENAME, downloadBackup, findBackupFile, loadGis, requestAccessToken, uploadBackup } from "../lib/googleDrive";
+import { importCampaignContent } from "../lib/campaignImport";
 
 export default function Dashboard() {
   const { campaign, setCampaign, players, npcs, milestones, encounter } = useData();
@@ -84,7 +85,86 @@ export default function Dashboard() {
       </div>
 
       <BackupCard />
+      <ImportarConteudoCard />
     </div>
+  );
+}
+
+function ImportarConteudoCard() {
+  const api = useData();
+  const fileInputRef = useRef(null);
+  const [pendingContent, setPendingContent] = useState(null);
+  const [erro, setErro] = useState("");
+  const [resultado, setResultado] = useState(null);
+
+  function selecionarArquivo() {
+    setErro("");
+    setResultado(null);
+    fileInputRef.current?.click();
+  }
+
+  function onFileChange(e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!data || typeof data !== "object" || (!Array.isArray(data.npcs) && !Array.isArray(data.items) && !Array.isArray(data.milestones))) {
+          throw new Error("Formato não reconhecido.");
+        }
+        setPendingContent(data);
+      } catch {
+        setErro("Não foi possível ler este arquivo como conteúdo de campanha.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function confirmar() {
+    const r = importCampaignContent(pendingContent, api);
+    setPendingContent(null);
+    setResultado(r);
+  }
+
+  return (
+    <Card title="Importar Conteúdo de Campanha">
+      <p className="text-xs text-parchment-300/60 mb-3">
+        Adiciona NPCs, Itens e Marcos (e as relações entre eles) a partir de um arquivo — sem apagar nada que já
+        existe na campanha. Diferente do Backup acima, que substitui tudo, isso só soma.
+      </p>
+
+      {!pendingContent ? (
+        <div className="flex flex-wrap gap-2 items-center">
+          <Button onClick={selecionarArquivo}>📖 Importar Conteúdo (.json)</Button>
+          <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={onFileChange} />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2 text-sm">
+          <p className="text-parchment-100">Isso vai adicionar:</p>
+          <ul className="text-xs text-parchment-300/70 list-disc list-inside">
+            <li>{pendingContent.npcs?.length ?? 0} NPC(s)</li>
+            <li>{pendingContent.items?.length ?? 0} item(ns)</li>
+            <li>{pendingContent.milestones?.length ?? 0} marco(s) de história</li>
+            <li>{pendingContent.links?.length ?? 0} relação(ões) (as que não encontrarem os dois lados são ignoradas)</li>
+          </ul>
+          <div className="flex gap-2 mt-1">
+            <Button variant="gold" onClick={confirmar}>Confirmar Importação</Button>
+            <Button variant="ghost" onClick={() => setPendingContent(null)}>Cancelar</Button>
+          </div>
+        </div>
+      )}
+
+      {erro && <p className="text-xs text-blood-500 mt-2">{erro}</p>}
+      {resultado && (
+        <p className="text-xs text-emerald-500 mt-2">
+          Adicionados: {resultado.npcs} NPC(s), {resultado.items} item(ns), {resultado.milestones} marco(s),{" "}
+          {resultado.linksAdicionados} relação(ões)
+          {resultado.linksIgnorados > 0 && ` (${resultado.linksIgnorados} relação(ões) ignorada(s) por não encontrar os dois lados)`}.
+        </p>
+      )}
+    </Card>
   );
 }
 
