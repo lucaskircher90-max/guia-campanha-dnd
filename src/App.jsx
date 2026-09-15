@@ -8,6 +8,8 @@ import NpcsList from "./pages/NpcsList";
 import NpcSheet from "./pages/NpcSheet";
 import NpcGenerator from "./pages/NpcGenerator";
 import Story from "./pages/Story";
+import Timeline from "./pages/Timeline";
+import Graph from "./pages/Graph";
 import Combat from "./pages/Combat";
 import ItemsList from "./pages/ItemsList";
 import ItemSheet from "./pages/ItemSheet";
@@ -29,6 +31,8 @@ export default function App() {
             <Route path="/npcs/:id" element={<NpcSheet />} />
             <Route path="/gerador-npc" element={<NpcGenerator />} />
             <Route path="/historia" element={<Story />} />
+            <Route path="/timeline" element={<Timeline />} />
+            <Route path="/grafo" element={<Graph />} />
             <Route path="/combate" element={<Combat />} />
             <Route path="/itens" element={<ItemsList />} />
             <Route path="/itens/:id" element={<ItemSheet />} />

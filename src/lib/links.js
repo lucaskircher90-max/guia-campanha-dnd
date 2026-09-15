@@ -3,12 +3,25 @@
 // conexões). Adicionar um novo tipo aqui é o único passo para que ele apareça
 // em todos os três lugares.
 export const ENTITY_TYPES = {
-  npc: { label: "NPC", icon: "🎭", listKey: "npcs" },
-  milestone: { label: "Marco", icon: "📜", listKey: "milestones" },
-  item: { label: "Item", icon: "🎒", listKey: "items" },
-  map: { label: "Local/Mapa", icon: "🗺️", listKey: "maps" },
-  player: { label: "Jogador", icon: "🧙", listKey: "players" },
+  npc: { label: "NPC", icon: "🎭", listKey: "npcs", color: "#c39a3f" },
+  milestone: { label: "Marco", icon: "📜", listKey: "milestones", color: "#8a2c2c" },
+  item: { label: "Item", icon: "🎒", listKey: "items", color: "#4b8a72" },
+  map: { label: "Local/Mapa", icon: "🗺️", listKey: "maps", color: "#4b6a8a" },
+  player: { label: "Jogador", icon: "🧙", listKey: "players", color: "#8a5ea0" },
 };
+
+// Rota (dentro de HashRouter) da ficha de cada tipo, quando existe uma —
+// usado pelo grafo de conexões pra abrir a entidade ao clicar no nó.
+export const ENTITY_ROUTES = {
+  npc: (id) => `/npcs/${id}`,
+  item: (id) => `/itens/${id}`,
+  map: (id) => `/mapas/${id}`,
+  player: (id) => `/jogadores/${id}`,
+};
+
+export function nodeKey(tipo, id) {
+  return `${tipo}__${id}`;
+}
 
 function listaDe(data, tipo) {
   const key = ENTITY_TYPES[tipo]?.listKey;

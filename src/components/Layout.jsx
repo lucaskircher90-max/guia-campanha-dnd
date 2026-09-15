@@ -8,6 +8,8 @@ const NAV_ITEMS = [
   { to: "/npcs", label: "NPCs" },
   { to: "/gerador-npc", label: "Gerador de NPC" },
   { to: "/historia", label: "História" },
+  { to: "/timeline", label: "Timeline" },
+  { to: "/grafo", label: "Grafo" },
   { to: "/itens", label: "Itens" },
   { to: "/mapas", label: "Mapas" },
   { to: "/tarot", label: "Tarot" },

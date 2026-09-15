@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { Button, Card, Checkbox, Field, TextArea, TextInput } from "../components/ui";
 import RelationsPanel from "../components/RelationsPanel";
-
-const TIPOS = ["Marco", "Revelação", "Combate", "NPC", "Local", "Item"];
+import { MILESTONE_TIPOS as TIPOS } from "../lib/milestoneTypes";
 
 export default function Story() {
   const { milestones, addMilestone, updateMilestone, removeMilestone } = useData();
@@ -40,7 +40,10 @@ export default function Story() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-display text-2xl text-gold-400">História da Campanha</h2>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="font-display text-2xl text-gold-400">História da Campanha</h2>
+        <Link to="/timeline" className="text-gold-400 text-sm hover:underline">Ver Timeline →</Link>
+      </div>
 
       <Card>
         <form onSubmit={criarRapido} className="flex flex-col gap-2">
