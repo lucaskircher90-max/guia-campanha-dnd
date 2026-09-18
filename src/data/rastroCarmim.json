@@ -1,0 +1,679 @@
+[
+  {
+    "index": "rc-cultista-segundo-amanhecer",
+    "nome": "Cultista do Segundo Amanhecer",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal",
+    "local": "Subsolo e Térreo",
+    "baseadoEm": "Cultista",
+    "tipoTamanhoAlinhamento": "Humanoide médio, grau 1",
+    "descricao": "Guarda de baixo escalão, em grupos de 2 a 4. Também serve de ficha para o Lacaio Corrompido do Solar Ashcombe.",
+    "ca": 12, "caObs": "", "pvMedio": 9, "pvDados": "2d8", "deslocamento": "9 m",
+    "atributos": { "for": 10, "des": 12, "con": 10, "int": 10, "sab": 11, "car": 10 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "Percepção passiva 10", "idiomas": "qualquer um (normalmente Comum)", "nd": "1/8", "pe": 25,
+    "tracos": [
+      { "nome": "Devoção Sombria", "descricao": "O cultista tem vantagem em testes de resistência contra ficar Enfeitiçado ou Amedrontado." }
+    ],
+    "acoes": [
+      { "nome": "Adaga Ritual", "descricao": "Ataque de Arma Corpo a Corpo: +3 para acertar, alcance 1,5 m, um alvo. Acerto: 4 (1d6+1) cortante." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-enxame-ratos-sedentos",
+    "nome": "Enxame de Ratos Sedentos",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal",
+    "local": "Cisterna Antiga (S2)",
+    "baseadoEm": "Enxame de Ratos",
+    "tipoTamanhoAlinhamento": "Enxame de roedores minúsculos, não alinhado",
+    "descricao": "Sangue derramado atrai o que sempre atraiu.",
+    "ca": 10, "caObs": "", "pvMedio": 24, "pvDados": "7d8-7", "deslocamento": "9 m, escavar 1,5 m",
+    "atributos": { "for": 9, "des": 11, "con": 9, "int": 2, "sab": 10, "car": 3 },
+    "salvaguardas": "", "pericias": "",
+    "resistenciasDano": "contundente, perfurante e cortante de ataques não-mágicos",
+    "imunidadesDano": "", "vulnerabilidadesDano": "",
+    "imunidadesCondicao": "Agarrado, Amedrontado, Atordoado, Caído, Enfeitiçado, Paralisado, Petrificado, Restrito",
+    "sentidos": "visão no escuro 9 m, Percepção passiva 10", "idiomas": "", "nd": "1/4", "pe": 50,
+    "tracos": [
+      { "nome": "Faro Aguçado", "descricao": "O enxame tem vantagem em testes de Sabedoria (Percepção) que dependam de olfato." },
+      { "nome": "Enxame", "descricao": "O enxame pode ocupar o espaço de outra criatura e vice-versa, e sofre dano dobrado de efeitos em área. O enxame não pode recuperar Pontos de Vida nem ganhar Pontos de Vida temporários." }
+    ],
+    "acoes": [
+      { "nome": "Mordidas", "descricao": "Ataque de Arma Corpo a Corpo: +2 para acertar, alcance 0, um alvo no espaço do enxame. Acerto: 5 (2d4) perfurante, ou metade se o enxame estiver com metade dos PV ou menos." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-iniciado-sangue",
+    "nome": "Iniciado do Sangue",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal",
+    "local": "Subsolo (S7), 2º Andar",
+    "baseadoEm": "Rufião",
+    "tipoTamanhoAlinhamento": "Humanoide médio, grau 2",
+    "descricao": "Passou por um rito de sangue vendido como “comunhão”.",
+    "ca": 11, "caObs": "(couro)", "pvMedio": 32, "pvDados": "5d8+10", "deslocamento": "9 m",
+    "atributos": { "for": 15, "des": 11, "con": 14, "int": 10, "sab": 10, "car": 11 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "Percepção passiva 10", "idiomas": "", "nd": "1/2", "pe": 100,
+    "tracos": [
+      { "nome": "Táticas de Matilha", "descricao": "O iniciado tem vantagem numa jogada de ataque contra uma criatura se pelo menos um aliado dele estiver a 1,5 m do alvo e não estiver incapacitado." },
+      { "nome": "Fé Fraturada", "descricao": "Ao ser reduzido à metade dos PV ou menos, sofre desvantagem no próximo ataque — um lampejo de dúvida sobre o que está se tornando." }
+    ],
+    "acoes": [
+      { "nome": "Mordida Sedenta", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 5 (1d6+2) necrótico, e o iniciado recupera PV igual ao dano causado." },
+      { "nome": "Adaga Cerimonial", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 4 (1d4+2) perfurante." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-devoto-segundo-amanhecer",
+    "nome": "Devoto do Segundo Amanhecer",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal",
+    "local": "Vários andares",
+    "baseadoEm": "Fanático do Culto",
+    "tipoTamanhoAlinhamento": "Humanoide médio conjurador, grau 2",
+    "descricao": "Clérigo/oficiante de nível médio do culto.",
+    "ca": 13, "caObs": "(couro)", "pvMedio": 33, "pvDados": "6d8+6", "deslocamento": "9 m",
+    "atributos": { "for": 11, "des": 14, "con": 12, "int": 10, "sab": 13, "car": 14 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "Percepção passiva 11", "idiomas": "", "nd": "2", "pe": 450,
+    "tracos": [
+      { "nome": "Devoção Sombria", "descricao": "O devoto tem vantagem em testes de resistência contra ficar Enfeitiçado ou Amedrontado." },
+      { "nome": "Conjuração", "descricao": "O devoto é um conjurador de nível 4 (CD de magia 11, +3 para acertar com magia). À vontade: chama sagrada invertida (1d8 necrótico), taumaturgia sombria. 1/dia cada: encantar pessoa, comando, bênção do falso amanhecer (como escudo da fé, mas concede vantagem no próximo ataque de um aliado a até 9 m em vez de +2 na CA)." }
+    ],
+    "acoes": [
+      { "nome": "Multiataque", "descricao": "O devoto faz dois ataques com a Adaga Cerimonial." },
+      { "nome": "Adaga Cerimonial", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 5 (1d6+2) perfurante." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-guarda-vidro-corrompido",
+    "nome": "Guarda de Vidro Corrompido",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal",
+    "local": "Todos os andares",
+    "baseadoEm": "Armadura Animada",
+    "tipoTamanhoAlinhamento": "Constructo médio, grau 3",
+    "descricao": "Antigo guarda cerimonial, corpo parcialmente vitrificado.",
+    "ca": 18, "caObs": "(armadura natural)", "pvMedio": 33, "pvDados": "6d8+6", "deslocamento": "7,5 m",
+    "atributos": { "for": 14, "des": 11, "con": 13, "int": 1, "sab": 3, "car": 1 },
+    "salvaguardas": "", "pericias": "",
+    "resistenciasDano": "perfurante e cortante de armas não-mágicas (Corpo Vítreo)",
+    "imunidadesDano": "veneno, psíquico",
+    "vulnerabilidadesDano": "trovão (Corpo Vítreo)",
+    "imunidadesCondicao": "Cego, Enfeitiçado, Ensurdecido, Exaustão, Amedrontado, Paralisado, Petrificado, Envenenado",
+    "sentidos": "visão às cegas 18 m (cego além desse raio), Percepção passiva 6", "idiomas": "", "nd": "1", "pe": 200,
+    "tracos": [
+      { "nome": "Suscetibilidade Antimágica", "descricao": "O guarda fica incapacitado enquanto estiver na área de um campo antimagia. Se for alvo de dissipar magia, deve ser bem-sucedido num teste de Constituição contra a CD de quem conjurou ou cai inconsciente por 1 minuto." },
+      { "nome": "Aparência Inerte", "descricao": "Enquanto permanece imóvel, o guarda é indistinguível de uma armadura comum." }
+    ],
+    "acoes": [
+      { "nome": "Multiataque", "descricao": "O guarda faz dois ataques com a Alabarda." },
+      { "nome": "Alabarda", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 3 m, um alvo. Acerto: 5 (1d6+2) perfurante ou cortante." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-capitao-hyll",
+    "nome": "Capitão Hyll",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal",
+    "local": "Pátio e Portão Principal (T1) — comanda 4× Guarda de Vidro Corrompido",
+    "baseadoEm": "Armadura Animada corrompida, variante nomeada",
+    "tipoTamanhoAlinhamento": "Constructo médio, nomeado",
+    "descricao": "Antigo capitão da guarda de Daggerford.",
+    "ca": 18, "caObs": "(armadura natural)", "pvMedio": 49, "pvDados": "9d8+9", "deslocamento": "7,5 m",
+    "atributos": { "for": 14, "des": 11, "con": 13, "int": 1, "sab": 3, "car": 1 },
+    "salvaguardas": "", "pericias": "",
+    "resistenciasDano": "perfurante e cortante de armas não-mágicas (Corpo Vítreo)",
+    "imunidadesDano": "veneno, psíquico",
+    "vulnerabilidadesDano": "trovão (Corpo Vítreo)",
+    "imunidadesCondicao": "Cego, Enfeitiçado, Ensurdecido, Exaustão, Amedrontado, Paralisado, Petrificado, Envenenado",
+    "sentidos": "visão às cegas 18 m (cego além desse raio), Percepção passiva 6", "idiomas": "", "nd": "2", "pe": 450,
+    "tracos": [
+      { "nome": "Suscetibilidade Antimágica", "descricao": "Mesma regra da Armadura Animada: incapacitado em campo antimagia; se for alvo de dissipar magia, teste de Constituição contra a CD de quem conjurou ou cai inconsciente por 1 minuto." },
+      { "nome": "Aparência Inerte", "descricao": "Enquanto imóvel, é indistinguível de uma armadura comum." },
+      { "nome": "Gatilho de RP", "descricao": "Gritar “Tessa” (nome da filha) causa uma única rodada de Vacilo — Hyll perde a reação e ataca com desvantagem no turno seguinte. Uma vez por combate." }
+    ],
+    "acoes": [
+      { "nome": "Multiataque", "descricao": "Hyll faz três ataques com a Alabarda (comanda um corpo reforçado por sobrepor três núcleos vítreos)." },
+      { "nome": "Alabarda", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 3 m, um alvo. Acerto: 5 (1d6+2) perfurante ou cortante." },
+      { "nome": "Grito de Alarme", "descricao": "Hyll alerta todos os guardas num raio de 18 m." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": "Primeiro grande combate do Castelo Ducal. Gritar “Tessa” causa um lampejo de Vacilo, mas não há redenção."
+  },
+  {
+    "index": "rc-escolta-valerius",
+    "nome": "Escolta Pessoal de Valerius",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal",
+    "local": "Câmara do Ritual, com Valerius",
+    "baseadoEm": "Horror Encapacetado",
+    "tipoTamanhoAlinhamento": "Constructo médio, variante de elite",
+    "descricao": "Escolhido a dedo entre os mais leais a Valerius.",
+    "ca": 20, "caObs": "(armadura de placas)", "pvMedio": 60, "pvDados": "8d8+24", "deslocamento": "9 m",
+    "atributos": { "for": 18, "des": 10, "con": 18, "int": 10, "sab": 12, "car": 10 },
+    "salvaguardas": "", "pericias": "",
+    "resistenciasDano": "força; magias (Corpo Vítreo Reforçado)",
+    "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "visão no escuro 18 m, Percepção passiva 11", "idiomas": "entende Comum e mais um idioma, mas não fala", "nd": "4", "pe": 1100,
+    "tracos": [
+      { "nome": "Corpo Vítreo Reforçado", "descricao": "A escolta tem vantagem em testes de resistência contra magia e efeitos mágicos." },
+      { "nome": "Armas Mágicas", "descricao": "Os ataques com arma da escolta são considerados mágicos para fins de superar resistência e imunidade a dano não-mágico." },
+      { "nome": "Fúria Vítrea", "descricao": "Quando Valerius está com metade do PV ou menos, esta escolta ganha +2 no bônus de ataque e +1d6 de dano cortante/perfurante até o fim do combate." }
+    ],
+    "acoes": [
+      { "nome": "Multiataque", "descricao": "A escolta faz dois ataques com a Alabarda." },
+      { "nome": "Alabarda", "descricao": "Ataque de Arma Corpo a Corpo: +7 para acertar, alcance 3 m, um alvo. Acerto: 9 (1d10+4) perfurante ou cortante." }
+    ],
+    "acoesLendarias": [],
+    "reacoes": [
+      { "nome": "Escolta Inabalável", "descricao": "Quando uma criatura a até 1,5 m de Valerius sofre um ataque, a escolta pode se interpor e sofrer o dano no lugar dele." }
+    ],
+    "notasMestre": ""
+  },
+  {
+    "index": "rc-serva-exsangue",
+    "nome": "Serva Exsangue",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal",
+    "local": "Salão de Banquetes (T6)",
+    "baseadoEm": "Zumbi",
+    "tipoTamanhoAlinhamento": "Morto-vivo médio",
+    "descricao": "Um servente do castelo, drenado e reanimado, ainda preso à própria rotina.",
+    "ca": 8, "caObs": "", "pvMedio": 22, "pvDados": "3d8+9", "deslocamento": "6 m",
+    "atributos": { "for": 13, "des": 6, "con": 16, "int": 3, "sab": 6, "car": 5 },
+    "salvaguardas": "Sabedoria +0", "pericias": "", "resistenciasDano": "", "imunidadesDano": "veneno", "vulnerabilidadesDano": "",
+    "imunidadesCondicao": "Envenenado",
+    "sentidos": "visão no escuro 18 m, Percepção passiva 8", "idiomas": "", "nd": "1/4", "pe": 50,
+    "tracos": [
+      { "nome": "Fortitude de Morto-Vivo", "descricao": "Se um dano não-radiante e não crítico reduzir a serva a 0 PV, ela faz um teste de Constituição (CD 5 + dano sofrido); sucesso, fica com 1 PV." },
+      { "nome": "Rotina Interrompida", "descricao": "Se ninguém a atacar, tocar ou fazer barulho alto perto dela, gasta o turno numa tarefa doméstica sem sentido em vez de agir. Só se torna hostil se provocada." }
+    ],
+    "acoes": [
+      { "nome": "Garra Fria", "descricao": "Ataque de Arma Corpo a Corpo: +3 para acertar, alcance 1,5 m, um alvo. Acerto: 4 (1d6+1) necrótico." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-enxame-morcegos-sangue-adormecido",
+    "nome": "Enxame de Morcegos do Sangue Adormecido",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal",
+    "local": "Arquivo do Culto (T4)",
+    "baseadoEm": "Enxame de Morcegos",
+    "tipoTamanhoAlinhamento": "Enxame de bestas minúsculas",
+    "descricao": "Ninhos agitados por uma energia que sentem antes de qualquer humano.",
+    "ca": 12, "caObs": "", "pvMedio": 22, "pvDados": "5d8", "deslocamento": "1,5 m, voo 9 m",
+    "atributos": { "for": 5, "des": 15, "con": 11, "int": 2, "sab": 12, "car": 4 },
+    "salvaguardas": "", "pericias": "",
+    "resistenciasDano": "contundente, perfurante e cortante de ataques não-mágicos",
+    "imunidadesDano": "", "vulnerabilidadesDano": "",
+    "imunidadesCondicao": "Agarrado, Amedrontado, Atordoado, Caído, Enfeitiçado, Paralisado, Petrificado, Restrito",
+    "sentidos": "visão às cegas 18 m, Percepção passiva 11", "idiomas": "", "nd": "1/4", "pe": 50,
+    "tracos": [
+      { "nome": "Ecolocalização", "descricao": "O enxame não pode usar sua visão às cegas enquanto surdo." },
+      { "nome": "Audição Aguçada", "descricao": "O enxame tem vantagem em testes de Sabedoria (Percepção) que dependam de audição." },
+      { "nome": "Sentinelas Involuntárias", "descricao": "Se perceber os jogadores antes de ser percebido, parte do enxame se destaca e voa — um alarme vivo." },
+      { "nome": "Enxame", "descricao": "O enxame pode ocupar o espaço de outra criatura e vice-versa, e sofre dano dobrado de efeitos em área." }
+    ],
+    "acoes": [
+      { "nome": "Mordidas", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 0, um alvo no espaço do enxame. Acerto: 2 (1d4) perfurante, ou metade se o enxame estiver com metade dos PV ou menos." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-sombra-esfomeada",
+    "nome": "Sombra Esfomeada",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal",
+    "local": "Galeria dos Espelhos, Torre",
+    "baseadoEm": "Sombra",
+    "tipoTamanhoAlinhamento": "Morto-vivo incorpóreo médio",
+    "descricao": "Não é fantasma de ninguém — é o que vaza quando um deus pressiona contra o véu.",
+    "ca": 12, "caObs": "", "pvMedio": 16, "pvDados": "3d8+3", "deslocamento": "12 m",
+    "atributos": { "for": 6, "des": 14, "con": 13, "int": 6, "sab": 10, "car": 8 },
+    "salvaguardas": "", "pericias": "Furtividade +4 (+6 em penumbra ou escuridão)",
+    "resistenciasDano": "ácido, frio, fogo, raio, trovão; contundente, perfurante e cortante de armas não-mágicas",
+    "imunidadesDano": "necrótico, veneno", "vulnerabilidadesDano": "radiante",
+    "imunidadesCondicao": "Agarrado, Amedrontado, Caído, Envenenado, Exaustão, Paralisado, Petrificado, Restrito, Inconsciente",
+    "sentidos": "visão no escuro 18 m, Percepção passiva 10", "idiomas": "", "nd": "1/2", "pe": 100,
+    "tracos": [
+      { "nome": "Amorfa", "descricao": "A sombra pode se mover através de um espaço com até 2,5 cm de largura sem se espremer." },
+      { "nome": "Furtividade nas Sombras", "descricao": "Em penumbra ou escuridão, a sombra pode usar a ação de Esconder-se." },
+      { "nome": "Nascida do Véu", "descricao": "Dissolve-se permanentemente (0 PV) se exposta a luz plena por 1 minuto inteiro; não sofre desvantagem em luz solar como uma sombra comum." }
+    ],
+    "acoes": [
+      { "nome": "Toque Debilitante", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 1,5 m, uma criatura. Acerto: 9 (2d6+2) necrótico, e a Força do alvo é reduzida em 1d4. O alvo morre se isso reduzir sua Força a 0; caso contrário, a redução dura até um descanso curto ou longo." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-eco-do-espelho",
+    "nome": "Eco do Espelho",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal",
+    "local": "Galeria dos Espelhos (A6)",
+    "baseadoEm": "Criatura totalmente customizada, sem monstro oficial base",
+    "tipoTamanhoAlinhamento": "Aberração média, sem alinhamento",
+    "descricao": "Fenômeno criado pela energia residual vazando pela Galeria dos Espelhos Quebrados. Emerge de um espelho como cópia sombria e distorcida do PJ com menos PV atual no início do combate. Ao ser destruído, explode em cacos inofensivos — não gera loot.",
+    "ca": 13, "caObs": "(igual ao PJ copiado, mín. 13)", "pvMedio": 30, "pvDados": "fixo, independente do PJ original", "deslocamento": "igual ao PJ copiado",
+    "atributos": { "for": 11, "des": 12, "con": 11, "int": 9, "sab": 10, "car": 9 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "Percepção passiva 10", "idiomas": "", "nd": "2", "pe": 450,
+    "tracos": [
+      { "nome": "Reflexo Instável", "descricao": "Sempre que sofre dano crítico, 50% de chance de se partir imediatamente (0 PV)." },
+      { "nome": "Imitação Incompleta", "descricao": "Não pode usar magias, habilidades de classe ou itens mágicos — só ataques físicos básicos." }
+    ],
+    "acoes": [
+      { "nome": "Cópia de Ataque", "descricao": "Reproduz o ataque corpo a corpo mais comum do PJ copiado, com o mesmo bônus e dano de arma, sem efeitos de classe." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-presa-segundo-amanhecer",
+    "nome": "Presa do Segundo Amanhecer",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal",
+    "local": "Nível 2 da Torre",
+    "baseadoEm": "Vampiro Espectral",
+    "tipoTamanhoAlinhamento": "Morto-vivo médio, “Prole Desperta”",
+    "descricao": "Mini-chefe — use no máximo 1 por combate.",
+    "ca": 15, "caObs": "", "pvMedio": 82, "pvDados": "11d8+33", "deslocamento": "9 m",
+    "atributos": { "for": 16, "des": 16, "con": 16, "int": 11, "sab": 10, "car": 12 },
+    "salvaguardas": "Destreza +6, Sabedoria +3, Carisma +4", "pericias": "Percepção +3, Furtividade +6",
+    "resistenciasDano": "necrótico; contundente, perfurante e cortante de armas não-mágicas que não sejam de prata",
+    "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "visão no escuro 18 m, Percepção passiva 13", "idiomas": "", "nd": "5", "pe": 1800,
+    "tracos": [
+      { "nome": "Regeneração", "descricao": "A Presa recupera 10 PV no início do seu turno se tiver ao menos 1 PV e não tiver sofrido dano radiante ou de água benta desde o último turno." },
+      { "nome": "Escalar Paredes", "descricao": "A Presa pode escalar superfícies difíceis, inclusive tetos, sem precisar de teste." },
+      { "nome": "Fraqueza ao Sol", "descricao": "A Presa tem desvantagem em jogadas de ataque e testes de característica sob luz solar direta." }
+    ],
+    "acoes": [
+      { "nome": "Multiataque", "descricao": "A Presa faz dois ataques de Garra." },
+      { "nome": "Garra", "descricao": "Ataque de Arma Corpo a Corpo: +6 para acertar, alcance 1,5 m, um alvo. Acerto: 7 (1d8+3) cortante. Se ambos os golpes acertarem o mesmo alvo na mesma rodada, dispara Mordida Sanguessuga automática: 10 (3d6) necrótico adicional, a Presa recupera PV igual ao dano causado, e o PV máximo do alvo é reduzido nesse valor até um descanso longo." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-valerius",
+    "nome": "Valerius, Cavaleiro Corrompido",
+    "fonte": "Rastro Carmim",
+    "grupo": "Castelo Ducal — Chefe",
+    "local": "Câmara do Ritual, Torre N3",
+    "baseadoEm": "Ficha totalmente customizada — chefe final, atributos adicionados",
+    "tipoTamanhoAlinhamento": "Humanoide médio (humano), grau 4",
+    "descricao": "Conselheiro Arcanista da Duquesa Morwen, chefe final do Castelo Ducal.",
+    "ca": 18, "caObs": "(armadura de placas profanada)", "pvMedio": 136, "pvDados": "16d8+64", "deslocamento": "9 m",
+    "atributos": { "for": 18, "des": 10, "con": 18, "int": 14, "sab": 11, "car": 20 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "Percepção passiva 10", "idiomas": "Comum, Abissal", "nd": "8", "pe": 3900,
+    "tracos": [
+      { "nome": "Conjuração", "descricao": "CD 16, 3 usos entre magias por combate. Toque Vampírico — cura Valerius pela metade do dano causado. Névoa Sanguínea — área de escuridão fraca + 1d6 necrótico por rodada a quem ficar dentro. Grito da Segunda Aurora (recarga 5-6) — empurra 3 m + Atordoado (CD 16) num cone de 4,5 m." },
+      { "nome": "Convicção Inabalável", "descricao": "Vantagem em testes de resistência contra Amedrontado e Enganado; não pode ser persuadido a desistir por meios comuns — só RP genuíno resolve isso, não um teste de dado." },
+      { "nome": "Carga do Ritual", "descricao": "Acumulativo, +1 a cada 3 rodadas vivo. +1d6 dano necrótico em todos os ataques por carga acumulada. Cap sugerido em +3 cargas." },
+      { "nome": "Última Devoção", "descricao": "Ao ser reduzido a 0 PV, teste de Constituição CD 16; sucesso, fica em 1 PV com um último ataque antes de cair." }
+    ],
+    "acoes": [
+      { "nome": "Multiataque", "descricao": "Valerius faz dois ataques de Espada Longa Profanada." },
+      { "nome": "Espada Longa Profanada", "descricao": "Ataque de Arma Corpo a Corpo: +9 para acertar, alcance 1,5 m, um alvo. Acerto: 14 (2d8+5) cortante + 3 (1d6) necrótico." }
+    ],
+    "acoesLendarias": [], "reacoes": [],
+    "notasMestre": "AJUSTE PRA NÍVEL 4: remova 1 carga do cap (máx +2), reduza PV pra ~110, e considere 1-2 Devotos sobreviventes ajudando só se os jogadores não os derrotaram antes — sem reforços novos direto no clímax.\n\nCOMO INTERPRETAR: fala baixo e com calma quase pastoral; nunca levanta a voz, mesmo em confronto direto — trata discordância como algo a ser compreendido, não combatido. Usa linguagem de redenção e renascimento (“ninguém precisa perder o que eu perdi”) mesmo ao justificar atos monstruosos. Armadura de placas impecável mesmo fora de combate; um símbolo discreto de Lathander pendurado, nunca removido. “Um propósito maior justifica qualquer preço — inclusive o meu.”\n\nSó demonstra raiva real se alguém disser que Seraphine “não teria orgulho dele” ou equivalente — nesse instante, e só nesse instante, a fachada racha. Se os jogadores tentarem demovê-lo, considere aceitar uma tentativa genuína (não mecânica) que toque especificamente essa dúvida. O resultado ideal não é fazê-lo desistir, e sim plantar a hesitação que antecipa a Última Devoção — ou abrir uma cena pós-combate diferente, rendendo-se genuinamente ferido."
+  },
+  {
+    "index": "rc-capanga-curtume",
+    "nome": "Capanga do Curtume",
+    "fonte": "Rastro Carmim",
+    "grupo": "Os Sumiços / Curtume de Vharenn",
+    "local": "Cemitério de Daggerford",
+    "baseadoEm": "Bandido",
+    "tipoTamanhoAlinhamento": "Humanoide médio",
+    "descricao": "Trabalhador pago por corpo entregue, com bastante medo de falar.",
+    "ca": 12, "caObs": "(couro)", "pvMedio": 11, "pvDados": "2d8+2", "deslocamento": "9 m",
+    "atributos": { "for": 11, "des": 12, "con": 12, "int": 10, "sab": 10, "car": 10 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "Percepção passiva 10", "idiomas": "", "nd": "1/8", "pe": 25,
+    "tracos": [
+      { "nome": "Fedor Químico", "descricao": "Vantagem em Furtividade à noite; qualquer criatura a até 3 m pode notá-lo pelo cheiro com Percepção passiva CD 12, mesmo no escuro." }
+    ],
+    "acoes": [
+      { "nome": "Pá Improvisada", "descricao": "Ataque de Arma Corpo a Corpo: +3 para acertar, alcance 1,5 m, um alvo. Acerto: 4 (1d6+1) contundente." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": "Se interrogado (CD 13 Intimidação/Persuasão), confirma que trabalha “pro Mestre Renn, no Curtume”."
+  },
+  {
+    "index": "rc-morto-experimento-errante",
+    "nome": "Morto-Experimento Errante",
+    "fonte": "Rastro Carmim",
+    "grupo": "Os Sumiços / Curtume de Vharenn",
+    "local": "Mausoléu do Cemitério",
+    "baseadoEm": "Zumbi",
+    "tipoTamanhoAlinhamento": "Morto-vivo médio",
+    "descricao": "Sobra de um experimento anterior de Vharenn, nunca recolhida.",
+    "ca": 8, "caObs": "", "pvMedio": 22, "pvDados": "3d8+9", "deslocamento": "6 m",
+    "atributos": { "for": 13, "des": 6, "con": 16, "int": 3, "sab": 6, "car": 5 },
+    "salvaguardas": "Sabedoria +0", "pericias": "", "resistenciasDano": "", "imunidadesDano": "veneno", "vulnerabilidadesDano": "",
+    "imunidadesCondicao": "Envenenado",
+    "sentidos": "visão no escuro 18 m, Percepção passiva 8", "idiomas": "", "nd": "1/4", "pe": 50,
+    "tracos": [
+      { "nome": "Fortitude de Morto-Vivo", "descricao": "Se um dano não-radiante e não crítico reduzir o morto-experimento a 0 PV, ele faz um teste de Constituição (CD 5 + dano sofrido); sucesso, fica com 1 PV." },
+      { "nome": "Feito às Pressas", "descricao": "Desvantagem em testes e resistências de Destreza; não sente medo nem dor." }
+    ],
+    "acoes": [
+      { "nome": "Garra Retalhada", "descricao": "Ataque de Arma Corpo a Corpo: +3 para acertar, alcance 1,5 m, um alvo. Acerto: 4 (1d6+1) cortante." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-golem-carne-malformado",
+    "nome": "Golem de Carne Malformado",
+    "fonte": "Rastro Carmim",
+    "grupo": "Os Sumiços / Curtume de Vharenn",
+    "local": "Laboratório Oculto",
+    "baseadoEm": "Golem de Carne",
+    "tipoTamanhoAlinhamento": "Constructo grande, sem alinhamento",
+    "descricao": "Criação bruta de Vharenn, solta como distração enquanto ele foge.",
+    "ca": 9, "caObs": "", "pvMedio": 93, "pvDados": "11d10+33", "deslocamento": "9 m",
+    "atributos": { "for": 19, "des": 9, "con": 18, "int": 6, "sab": 10, "car": 5 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "relâmpago, veneno", "vulnerabilidadesDano": "",
+    "imunidadesCondicao": "Enfeitiçado, Exaustão, Amedrontado, Paralisado, Petrificado, Envenenado",
+    "sentidos": "visão no escuro 18 m, Percepção passiva 10", "idiomas": "", "nd": "5", "pe": 1800,
+    "tracos": [
+      { "nome": "Enfurecido", "descricao": "Sempre que o golem sofre dano, deve fazer um teste de Constituição CD 10; falha, entra em fúria. Enquanto enfurecido, ataca a criatura mais próxima a cada turno." },
+      { "nome": "Forma Imutável", "descricao": "O golem é imune a qualquer magia ou efeito que mudaria sua forma." },
+      { "nome": "Absorção de Relâmpago", "descricao": "Sempre que é atingido por um ataque de relâmpago, o golem não sofre dano e em vez disso recupera PV igual ao dano de relâmpago causado." },
+      { "nome": "Aversão ao Fogo", "descricao": "Se sofrer dano de fogo, tem desvantagem em jogadas de ataque e testes de característica até o fim do próximo turno." },
+      { "nome": "Explosão de Vapores", "descricao": "Ao ser reduzido a 0 PV, libera gás tóxico num raio de 3 m: Constituição CD 13 ou Enjoado por 1 minuto (repete ao fim de cada turno)." }
+    ],
+    "acoes": [
+      { "nome": "Multiataque", "descricao": "O golem faz dois ataques de Punho Retalhado." },
+      { "nome": "Punho Retalhado", "descricao": "Ataque de Arma Corpo a Corpo: +7 para acertar, alcance 1,5 m, um alvo. Acerto: 13 (2d8+4) contundente." }
+    ],
+    "acoesLendarias": [], "reacoes": [],
+    "notasMestre": "AJUSTE PRA NÍVEL 4: reduza PV pra ~60 e dano pra 2d6+3 por golpe.\n\nNOTA DE MESA: é a última carta de Vharenn antes de fugir, uma distração feita de partes costuradas e química instável. Use-o para forçar os jogadores a escolher entre persegui-lo e conter a ameaça que ele deixou pra trás. “Ele não sente dor. Só raiva de existir.”"
+  },
+  {
+    "index": "rc-mestre-vharenn",
+    "nome": "Mestre Vharenn, Conjurador do Pacto de Sangue",
+    "fonte": "Rastro Carmim",
+    "grupo": "Os Sumiços / Curtume de Vharenn — Vilão recorrente",
+    "local": "Laboratório Oculto do Curtume",
+    "baseadoEm": "Ficha totalmente customizada — vilão recorrente, atributos adicionados",
+    "tipoTamanhoAlinhamento": "Humanoide médio (humano), grau alto",
+    "descricao": "Agente do culto que corrompeu Valerius décadas atrás, disfarçado de alquimista itinerante.",
+    "ca": 13, "caObs": "(couro reforçado + proteção arcana)", "pvMedio": 97, "pvDados": "13d8+39", "deslocamento": "9 m",
+    "atributos": { "for": 10, "des": 14, "con": 16, "int": 16, "sab": 12, "car": 18 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "necrótico, veneno", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "Percepção passiva 11", "idiomas": "Comum, Profundo", "nd": "7", "pe": 2900,
+    "tracos": [
+      { "nome": "Conjuração de Pacto", "descricao": "Nível de conjurador 9, CD 15, +7 para acertar com magia. À vontade: Lança de Sangue Vazio (alcance 36 m, +7 para acertar, 2d10 necrótico). 3/dia cada: Hex (desvantagem num teste do alvo + 1d6 necrótico extra nos ataques de Vharenn contra ele); Segredo Vil (como sugestão, mas o alvo é convencido por algo que já teme ou deseja em segredo); Palavras Dissonantes (CD 15 Sabedoria ou o alvo não pode se mover/reagir até o fim do próprio turno). 1/dia: Grito do Sangue Vazio (cone de 4,5 m, CD 15 Sabedoria ou Amedrontado por 1 minuto)." },
+      { "nome": "Pacto de Sangue", "descricao": "Sempre que causa dano necrótico, recupera PV igual à metade do dano causado (uma vez por turno)." },
+      { "nome": "Mente Fria", "descricao": "Vantagem em testes de resistência contra Amedrontado; não cede a ameaças ou súplicas emocionais simples." }
+    ],
+    "acoes": [
+      { "nome": "Bengala-Adaga", "descricao": "Ataque de Arma Corpo a Corpo: +5 para acertar, alcance 1,5 m, um alvo. Acerto: 5 (1d6+2) perfurante + 1d6 veneno." },
+      { "nome": "Libertar o Golem", "descricao": "Vharenn abre a contenção do Golem de Carne Malformado (ação)." },
+      { "nome": "Nuvem Alquímica (1/combate)", "descricao": "Vharenn cria fumaça densa num raio de 6 m por 1 minuto; visibilidade fortemente reduzida dentro dela." }
+    ],
+    "acoesLendarias": [],
+    "reacoes": [
+      { "nome": "Sempre um Passo à Frente", "descricao": "Se reduzido à metade do PV ou menos, Vharenn desaparece em fumaça e reaparece a até 9 m, oculto — não funciona se já estiver Agarrado ou Restrito." }
+    ],
+    "notasMestre": "CENA DE FUGA: não deve ser derrotado nesta aparição. No início da 3ª rodada (ou antes, se ficar com metade do PV), foge pelo alçapão reforçado, que tranca por dentro — Força CD 16 ou 1 minuto de trabalho com ferramentas pra arrombar, tempo suficiente pra sumir nos túneis. Esta ficha completa fica reservada pra uma futura reaparição, se os jogadores o encurralarem de vez.\n\nCOMO INTERPRETAR: calmo, sem se abalar mesmo ao ser flagrado. A cena é sobre a fuga dele, não sobre matá-lo. Décadas atrás, procurou Valerius — então em luto pela irmã Seraphine — e ofereceu o que chamou de “presente” em nome de Kanchelsis. Não se vê como sedutor do mal; se vê como alguém que oferece alívio a quem já está quebrado, e deixa a escolha (e a culpa) nas mãos de quem aceita. “Eu não corrompo ninguém. Só ofereço o que a dor já estava pedindo.”"
+  },
+  {
+    "index": "rc-clerigo-afogado-corrompido",
+    "nome": "Clérigo Afogado Corrompido",
+    "fonte": "Rastro Carmim",
+    "grupo": "Capela Afogada dos Alvoradas",
+    "local": "Santuário Interno",
+    "baseadoEm": "Sacerdote",
+    "tipoTamanhoAlinhamento": "Morto-vivo médio, conjurador",
+    "descricao": "Defensor do Templo, morto na queda, corrompido pelas águas do santuário.",
+    "ca": 13, "caObs": "(paramentos encharcados)", "pvMedio": 27, "pvDados": "5d8+5", "deslocamento": "6 m, nadar 9 m",
+    "atributos": { "for": 10, "des": 10, "con": 12, "int": 13, "sab": 16, "car": 13 },
+    "salvaguardas": "", "pericias": "Medicina +7, Persuasão +3, Religião +3",
+    "resistenciasDano": "necrótico", "imunidadesDano": "", "vulnerabilidadesDano": "radiante", "imunidadesCondicao": "",
+    "sentidos": "visão no escuro 18 m, Percepção passiva 13", "idiomas": "", "nd": "2", "pe": 450,
+    "tracos": [
+      { "nome": "Eminência Profana", "descricao": "Como ação bônus, o clérigo gasta um espaço de magia para infundir o próximo golpe: o Golpe Encharcado causa +10 de dano necrótico adicional se acertar." },
+      { "nome": "Domínio das Águas", "descricao": "Vantagem em ataques e testes de resistência enquanto total ou parcialmente submerso." },
+      { "nome": "Conjuração", "descricao": "Conjurador de nível 5 (CD 13, +5 para acertar com magia). Truques: luz cinzenta (escuridão fraca em vez de luz), chama profana, taumaturgia sombria. 1º nível (4 espaços): toque curador invertido, raio guia sombrio, santuário. 2º nível (3 espaços): restauração menor, arma espiritual (lâmina de água corrosiva). 3º nível (2 espaços): dissipar magia, guardiões espirituais." }
+    ],
+    "acoes": [
+      { "nome": "Golpe Encharcado", "descricao": "Ataque de Arma Corpo a Corpo: +2 para acertar, alcance 1,5 m, um alvo. Acerto: 3 (1d6) contundente." },
+      { "nome": "Abraço Afogante (recarga 5-6)", "descricao": "Agarra um alvo adjacente (CD 12 Atletismo/Acrobacia pra resistir); alvo agarrado sofre 1d6 necrótico no início de cada turno e não pode respirar enquanto preso." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-afogado-errante",
+    "nome": "Afogado Errante",
+    "fonte": "Rastro Carmim",
+    "grupo": "Capela Afogada dos Alvoradas",
+    "local": "Corredor Alagado",
+    "baseadoEm": "Afogado",
+    "tipoTamanhoAlinhamento": "Morto-vivo médio",
+    "descricao": "Curado das águas corrompidas, emboscado entre destroços.",
+    "ca": 11, "caObs": "", "pvMedio": 18, "pvDados": "4d8", "deslocamento": "6 m, nadar 12 m",
+    "atributos": { "for": 11, "des": 12, "con": 10, "int": 7, "sab": 9, "car": 6 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "frio", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "visão no escuro 18 m, Percepção passiva 9", "idiomas": "", "nd": "1/4", "pe": 50,
+    "tracos": [
+      { "nome": "Anfíbio", "descricao": "O afogado pode respirar tanto no ar quanto embaixo d'água." },
+      { "nome": "Emboscada Aquática", "descricao": "Vantagem em ataques contra criaturas que ainda não agiram no combate." }
+    ],
+    "acoes": [
+      { "nome": "Multiataque", "descricao": "O afogado faz dois ataques de Garra." },
+      { "nome": "Garras Encharcadas", "descricao": "Ataque de Arma Corpo a Corpo: +2 para acertar, alcance 1,5 m, um alvo. Acerto: 2 (1d4) cortante, e o alvo fica Restrito (CD 11 Força para escapar) até o fim do próximo turno dele." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-clerigo-chefe-afogado-corrompido",
+    "nome": "Clérigo-Chefe Afogado Corrompido",
+    "fonte": "Rastro Carmim",
+    "grupo": "Capela Afogada dos Alvoradas",
+    "local": "Santuário Interno",
+    "baseadoEm": "Sacerdote, variante fortalecida",
+    "tipoTamanhoAlinhamento": "Morto-vivo médio, conjurador",
+    "descricao": "Antigo líder do Templo — devia protegê-lo, agora é o que o corrompeu por dentro.",
+    "ca": 14, "caObs": "(armadura de couro encharcada)", "pvMedio": 45, "pvDados": "6d8+18", "deslocamento": "6 m, nadar 9 m",
+    "atributos": { "for": 10, "des": 10, "con": 16, "int": 13, "sab": 16, "car": 13 },
+    "salvaguardas": "", "pericias": "Medicina +7, Persuasão +3, Religião +3",
+    "resistenciasDano": "necrótico; dano de arma não-mágica vindo da água", "imunidadesDano": "", "vulnerabilidadesDano": "radiante", "imunidadesCondicao": "",
+    "sentidos": "visão no escuro 18 m, Percepção passiva 13", "idiomas": "", "nd": "3", "pe": 700,
+    "tracos": [
+      { "nome": "Eminência Profana", "descricao": "Como ação bônus, o clérigo-chefe gasta um espaço de magia para infundir o próximo golpe: o Toque Corrosivo causa +10 de dano necrótico adicional se acertar." },
+      { "nome": "Conjuração", "descricao": "Mesma lista de magias do Clérigo Afogado Corrompido, nível 5, CD 13. Ação bônus, 1/dia: convocar as águas — empurra 1,5 m num raio de 3 m + Restrito (CD 12 Força)." },
+      { "nome": "Última Devoção Corrompida", "descricao": "Ao ser reduzido a 0 PV, teste de Constituição CD 12; sucesso, fica com 1 PV e faz um último ataque com vantagem antes de cair." }
+    ],
+    "acoes": [
+      { "nome": "Toque Corrosivo", "descricao": "Ataque de Arma Corpo a Corpo: +5 para acertar, alcance 1,5 m, um alvo. Acerto: 11 (2d8+2) necrótico." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-sentinela-ossos-alvorecer",
+    "nome": "Sentinela de Ossos do Alvorecer",
+    "fonte": "Rastro Carmim",
+    "grupo": "Capela Afogada dos Alvoradas",
+    "local": "Ossário Inferior (opcional)",
+    "baseadoEm": "Esqueleto, variante ampliada",
+    "tipoTamanhoAlinhamento": "Constructo ósseo médio",
+    "descricao": "Guardião do Ossário Inferior, animado há séculos, não corrompido pelo culto.",
+    "ca": 16, "caObs": "", "pvMedio": 45, "pvDados": "6d10+12", "deslocamento": "6 m",
+    "atributos": { "for": 10, "des": 14, "con": 15, "int": 6, "sab": 8, "car": 5 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "veneno", "vulnerabilidadesDano": "contundente",
+    "imunidadesCondicao": "Exaustão, Envenenado",
+    "sentidos": "visão no escuro 18 m, Percepção passiva 9", "idiomas": "", "nd": "2", "pe": 450,
+    "tracos": [
+      { "nome": "Vigília Eterna", "descricao": "Imune a medo, exaustão, veneno; não precisa respirar nem comer." },
+      { "nome": "Trégua Sagrada", "descricao": "Para de atacar (mas não larga a arma) se qualquer criatura fizer o gesto de saudação a Lathander corretamente (Religião CD 12 pra saber o gesto); volta a atacar se atacada de novo." }
+    ],
+    "acoes": [
+      { "nome": "Lança Óssea", "descricao": "Ataque de Arma Corpo a Corpo ou à Distância: +4 para acertar, alcance 1,5 m ou alcance 18/72 m, um alvo. Acerto: 5 (1d6+2) perfurante." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-cavaleiro-vazio",
+    "nome": "Cavaleiro Vazio",
+    "fonte": "Rastro Carmim",
+    "grupo": "Solar Ashcombe",
+    "local": "Corredor do 2º andar",
+    "baseadoEm": "Armadura Animada, ficha oficial",
+    "tipoTamanhoAlinhamento": "Constructo médio, não alinhado",
+    "descricao": "Armadura cerimonial que ninguém espera que se mexa.",
+    "ca": 18, "caObs": "(armadura natural)", "pvMedio": 33, "pvDados": "6d8+6", "deslocamento": "7,5 m",
+    "atributos": { "for": 14, "des": 11, "con": 13, "int": 1, "sab": 3, "car": 1 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "veneno, psíquico", "vulnerabilidadesDano": "",
+    "imunidadesCondicao": "Cego, Enfeitiçado, Ensurdecido, Exaustão, Amedrontado, Paralisado, Petrificado, Envenenado",
+    "sentidos": "visão às cegas 18 m (cego além desse raio), Percepção passiva 6", "idiomas": "", "nd": "1", "pe": 200,
+    "tracos": [
+      { "nome": "Suscetibilidade Antimágica", "descricao": "O cavaleiro fica incapacitado enquanto estiver na área de um campo antimagia. Se for alvo de dissipar magia, deve ser bem-sucedido num teste de Constituição contra a CD de quem conjurou ou cai inconsciente por 1 minuto." },
+      { "nome": "Aparência Inerte", "descricao": "Enquanto permanece imóvel, é indistinguível de uma armadura comum." },
+      { "nome": "Hesitação", "descricao": "Se qualquer criatura gritar “Seraphine” em algum momento do combate, o cavaleiro interrompe o ataque por 1 rodada inteira, a lâmina tremendo no ar." }
+    ],
+    "acoes": [
+      { "nome": "Multiataque", "descricao": "O cavaleiro faz dois ataques de Golpe de Espada Cerimonial." },
+      { "nome": "Golpe de Espada Cerimonial", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 5 (1d6+2) cortante." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-sombra-do-luto",
+    "nome": "Sombra do Luto",
+    "fonte": "Rastro Carmim",
+    "grupo": "Solar Ashcombe",
+    "local": "Corredor Superior",
+    "baseadoEm": "Sombra",
+    "tipoTamanhoAlinhamento": "Morto-vivo médio, caótico e mau",
+    "descricao": "Não é a alma de ninguém específico — é o luto represado da casa Ashcombe, com forma o bastante pra doer. Aparece em grupos de até 3.",
+    "ca": 12, "caObs": "", "pvMedio": 16, "pvDados": "3d8+3", "deslocamento": "12 m",
+    "atributos": { "for": 6, "des": 14, "con": 13, "int": 6, "sab": 10, "car": 8 },
+    "salvaguardas": "", "pericias": "Furtividade +4 (+6 em penumbra ou escuridão)",
+    "resistenciasDano": "ácido, frio, fogo, raio, trovão; contundente, perfurante e cortante de armas não-mágicas",
+    "imunidadesDano": "necrótico, veneno", "vulnerabilidadesDano": "radiante",
+    "imunidadesCondicao": "Agarrado, Amedrontado, Caído, Envenenado, Exaustão, Paralisado, Petrificado, Restrito, Inconsciente",
+    "sentidos": "visão no escuro 18 m, Percepção passiva 10", "idiomas": "", "nd": "1/2", "pe": 100,
+    "tracos": [
+      { "nome": "Amorfa", "descricao": "A sombra pode se mover através de um espaço com até 2,5 cm de largura sem se espremer." },
+      { "nome": "Furtividade nas Sombras", "descricao": "Em penumbra ou escuridão, a sombra pode usar a ação de Esconder-se." },
+      { "nome": "Fraqueza à Luz Solar", "descricao": "Desvantagem em jogadas de ataque enquanto em luz solar direta." }
+    ],
+    "acoes": [
+      { "nome": "Dreno de Força", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 1,5 m, uma criatura. Acerto: 9 (2d6+2) necrótico, e a Força do alvo é reduzida em 1d4 (mín. 1) até um descanso curto ou longo. Se isso reduzir a Força a 0, o alvo morre e se levanta como uma Sombra em 1d4 horas." }
+    ],
+    "acoesLendarias": [], "reacoes": [],
+    "notasMestre": "CALIBRAÇÃO: pesado pra nível 3 — considere emergir em ondas de uma por rodada, ou reduzir pra duas."
+  },
+  {
+    "index": "rc-amalgama-enraizada",
+    "nome": "Amálgama Enraizada",
+    "fonte": "Rastro Carmim",
+    "grupo": "Solar Ashcombe",
+    "local": "Porão do Solar Ashcombe",
+    "baseadoEm": "Criatura totalmente customizada, sem monstro oficial base",
+    "tipoTamanhoAlinhamento": "Monstruosidade grande, neutra e má",
+    "descricao": "Presa ao altar do porão por correntes de carne e raiz, guarda Barnaby refém.",
+    "ca": 12, "caObs": "", "pvMedio": 60, "pvDados": "8d10+16", "deslocamento": "3 m (presa ao altar, raio de 6 m)",
+    "atributos": { "for": 17, "des": 8, "con": 15, "int": 4, "sab": 10, "car": 6 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "fogo", "imunidadesCondicao": "",
+    "sentidos": "visão no escuro 9 m, Percepção passiva 10", "idiomas": "", "nd": "3", "pe": 700,
+    "tracos": [],
+    "acoes": [
+      { "nome": "Tentáculo", "descricao": "Ataque de Arma Corpo a Corpo: +6 para acertar, alcance 3 m, um alvo. Acerto: 10 (2d6+3) contundente, e o alvo fica Agarrado (CD 13 para escapar)." },
+      { "nome": "Absorção Lenta", "descricao": "Um alvo Agarrado sofre 1d10 necrótico no início de cada um dos próprios turnos." }
+    ],
+    "acoesLendarias": [], "reacoes": [],
+    "notasMestre": "Sair do alcance dela (6 m do altar) é suficiente pra resgatar Barnaby sem precisar destruí-la — mas é vulnerável a fogo, se os jogadores preferirem queimá-la."
+  },
+  {
+    "index": "rc-vassoura-animada",
+    "nome": "Vassoura Animada",
+    "fonte": "Rastro Carmim",
+    "grupo": "Solar Ashcombe",
+    "local": "Sala de Armazenamento",
+    "baseadoEm": "Criatura totalmente customizada, sem monstro oficial base — alívio cômico",
+    "tipoTamanhoAlinhamento": "Constructo minúsculo, não alinhado",
+    "descricao": "Alívio cômico, sem ameaça real.",
+    "ca": 11, "caObs": "", "pvMedio": 10, "pvDados": "3d4+3", "deslocamento": "6 m",
+    "atributos": { "for": 6, "des": 14, "con": 12, "int": 1, "sab": 3, "car": 5 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "Percepção passiva 6", "idiomas": "", "nd": "0", "pe": 10,
+    "tracos": [],
+    "acoes": [
+      { "nome": "Empurrão", "descricao": "Sem ataque de dano; apenas empurra e atrapalha quem estiver mais perto (afasta 1,5 m, sem teste)." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-lacaio-corrompido",
+    "nome": "Lacaio Corrompido",
+    "fonte": "Rastro Carmim",
+    "grupo": "Solar Ashcombe",
+    "local": "Porão do Solar Ashcombe",
+    "baseadoEm": "Reaproveita a ficha do Cultista do Segundo Amanhecer",
+    "tipoTamanhoAlinhamento": "Humanoide médio, grau 1",
+    "descricao": "Guarda Barnaby no Porão junto da Amálgama Enraizada.",
+    "ca": 12, "caObs": "", "pvMedio": 9, "pvDados": "2d8", "deslocamento": "9 m",
+    "atributos": { "for": 10, "des": 12, "con": 10, "int": 10, "sab": 11, "car": 10 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "Percepção passiva 10", "idiomas": "qualquer um (normalmente Comum)", "nd": "1/8", "pe": 25,
+    "tracos": [
+      { "nome": "Devoção Sombria", "descricao": "O lacaio tem vantagem em testes de resistência contra ficar Enfeitiçado ou Amedrontado." }
+    ],
+    "acoes": [
+      { "nome": "Adaga Ritual", "descricao": "Ataque de Arma Corpo a Corpo: +3 para acertar, alcance 1,5 m, um alvo. Acerto: 4 (1d6+1) cortante." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-guarda-daggerford",
+    "nome": "Guarda de Daggerford",
+    "fonte": "Rastro Carmim",
+    "grupo": "Guardas de Daggerford (não corrompidos)",
+    "local": "Patrulhas e checkpoints",
+    "baseadoEm": "Guarda",
+    "tipoTamanhoAlinhamento": "Humanoide médio",
+    "descricao": "Vigia padrão da cidade, treinado mas comum. Sem ligação com o culto.",
+    "ca": 16, "caObs": "(cota de malha, escudo)", "pvMedio": 11, "pvDados": "2d8+2", "deslocamento": "9 m",
+    "atributos": { "for": 13, "des": 12, "con": 12, "int": 10, "sab": 11, "car": 10 },
+    "salvaguardas": "", "pericias": "Percepção +2", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "Percepção passiva 12", "idiomas": "", "nd": "1/8", "pe": 25,
+    "tracos": [],
+    "acoes": [
+      { "nome": "Lança", "descricao": "Ataque de Arma Corpo a Corpo ou à Distância: +3 para acertar, alcance 1,5 m ou alcance 6/18 m, um alvo. Acerto: 4 (1d6+1) perfurante, ou 5 (1d8+1) perfurante se usada com as duas mãos em um ataque corpo a corpo." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-recruta-guarda",
+    "nome": "Recruta da Guarda",
+    "fonte": "Rastro Carmim",
+    "grupo": "Guardas de Daggerford (não corrompidos)",
+    "local": "Postos secundários",
+    "baseadoEm": "Plebeu",
+    "tipoTamanhoAlinhamento": "Humanoide médio",
+    "descricao": "Reforço inexperiente, patrulhas menores ou postos secundários.",
+    "ca": 10, "caObs": "", "pvMedio": 4, "pvDados": "1d8", "deslocamento": "9 m",
+    "atributos": { "for": 10, "des": 10, "con": 10, "int": 10, "sab": 10, "car": 10 },
+    "salvaguardas": "", "pericias": "", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "Percepção passiva 10", "idiomas": "", "nd": "0", "pe": 10,
+    "tracos": [
+      { "nome": "Sem Experiência", "descricao": "Desvantagem em testes de iniciativa." }
+    ],
+    "acoes": [
+      { "nome": "Porrete", "descricao": "Ataque de Arma Corpo a Corpo: +2 para acertar, alcance 1,5 m, um alvo. Acerto: 2 (1d4) contundente." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  }
+]

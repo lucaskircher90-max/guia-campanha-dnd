@@ -13,6 +13,8 @@ export default function Combat() {
   const [pickerAberto, setPickerAberto] = useState(false);
   const [bestiarioAberto, setBestiarioAberto] = useState(false);
   const [bestiarioBusca, setBestiarioBusca] = useState("");
+  const [bestiarioFonte, setBestiarioFonte] = useState("todos");
+  const [bestiarioPreview, setBestiarioPreview] = useState(null);
   const [bestiario, setBestiario] = useState(null);
   const [bestiarioCarregando, setBestiarioCarregando] = useState(false);
   const [salvos, setSalvos] = useState({});
@@ -27,9 +29,14 @@ export default function Combat() {
   const bestiarioResultados = useMemo(() => {
     if (!bestiario) return [];
     const q = bestiarioBusca.trim().toLowerCase();
-    const filtrado = q ? bestiario.filter((m) => m.nome.toLowerCase().includes(q)) : bestiario;
+    const daFonte = bestiario.filter((m) =>
+      bestiarioFonte === "todos" ? true : bestiarioFonte === "rc" ? m.fonte === "Rastro Carmim" : m.fonte !== "Rastro Carmim"
+    );
+    const filtrado = q ? daFonte.filter((m) => m.nome.toLowerCase().includes(q)) : daFonte;
     return filtrado.slice(0, 60);
-  }, [bestiario, bestiarioBusca]);
+  }, [bestiario, bestiarioBusca, bestiarioFonte]);
+
+  const totalRastroCarmim = bestiario ? bestiario.filter((m) => m.fonte === "Rastro Carmim").length : 0;
 
   function updateCombatant(id, patch) {
     setEncounter((prev) => ({
@@ -81,15 +88,19 @@ export default function Combat() {
     setPickerAberto(false);
   }
 
+  // Bestiário do Rastro Carmim vem primeiro na lista, depois o SRD 5.1.
+  function carregarBestiario() {
+    if (bestiario || bestiarioCarregando) return;
+    setBestiarioCarregando(true);
+    Promise.all([import("../data/rastroCarmim.json"), import("../data/monsters.json")])
+      .then(([rc, srd]) => setBestiario([...rc.default, ...srd.default]))
+      .finally(() => setBestiarioCarregando(false));
+  }
+
   function abrirBestiario() {
     setPickerAberto(false);
     setBestiarioAberto((v) => !v);
-    if (!bestiario && !bestiarioCarregando) {
-      setBestiarioCarregando(true);
-      import("../data/monsters.json")
-        .then((mod) => setBestiario(mod.default))
-        .finally(() => setBestiarioCarregando(false));
-    }
+    carregarBestiario();
   }
 
   function addFromMonster(m) {
@@ -108,7 +119,11 @@ export default function Combat() {
   }
 
   function salvarMonstroComoNpc(m) {
-    addNpc({ ...m, descricao: "Importado do bestiário SRD.", importante: false });
+    addNpc({
+      ...m,
+      descricao: m.fonte === "Rastro Carmim" ? m.descricao || "" : "Importado do bestiário SRD.",
+      importante: false,
+    });
     setSalvos((prev) => ({ ...prev, [m.index]: true }));
   }
 
@@ -261,58 +276,96 @@ export default function Combat() {
           variant={calcAberta ? "primary" : "default"}
           onClick={() => {
             setCalcAberta((v) => !v);
-            if (!bestiario && !bestiarioCarregando) {
-              setBestiarioCarregando(true);
-              import("../data/monsters.json")
-                .then((mod) => setBestiario(mod.default))
-                .finally(() => setBestiarioCarregando(false));
-            }
+            carregarBestiario();
           }}
         >
           🧮 Calculadora de Dificuldade
         </Button>
 
         <div className="relative">
-          <Button onClick={abrirBestiario}>🐉 Bestiário (SRD)</Button>
+          <Button onClick={abrirBestiario}>🐉 Bestiário</Button>
           {bestiarioAberto && (
-            <div className="absolute z-10 mt-2 card p-3 w-96 max-w-[90vw]">
+            <div className="absolute z-10 mt-2 card p-3 w-[28rem] max-w-[90vw]">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs uppercase tracking-wide text-parchment-300/50">
-                  {bestiario ? `${bestiario.length} monstros (SRD 5.1)` : "Carregando..."}
+                  {bestiario ? `${bestiario.length} criaturas (${totalRastroCarmim} Rastro Carmim + SRD 5.1)` : "Carregando..."}
                 </p>
                 <button onClick={() => setBestiarioAberto(false)} className="text-parchment-300/50 hover:text-parchment-100 text-sm">✕</button>
               </div>
+              <div className="flex gap-1.5 mb-2">
+                {[
+                  { key: "todos", label: "Todos" },
+                  { key: "rc", label: "Rastro Carmim" },
+                  { key: "srd", label: "SRD 5.1" },
+                ].map((f) => (
+                  <button
+                    key={f.key}
+                    onClick={() => setBestiarioFonte(f.key)}
+                    className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
+                      bestiarioFonte === f.key
+                        ? "bg-gold-600 border-gold-600 text-ink-950 font-semibold"
+                        : "border-ink-600 text-parchment-300/60 hover:text-parchment-100"
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
               <TextInput
                 autoFocus
-                placeholder="Buscar monstro por nome..."
+                placeholder="Buscar criatura por nome..."
                 value={bestiarioBusca}
                 onChange={setBestiarioBusca}
               />
-              <div className="mt-2 max-h-72 overflow-y-auto flex flex-col gap-0.5">
+              <div className="mt-2 max-h-80 overflow-y-auto flex flex-col gap-0.5">
                 {bestiarioCarregando && <p className="text-xs text-parchment-300/40 py-2">Carregando bestiário...</p>}
                 {!bestiarioCarregando && bestiarioResultados.length === 0 && bestiario && (
-                  <p className="text-xs text-parchment-300/40 py-2">Nenhum monstro encontrado.</p>
+                  <p className="text-xs text-parchment-300/40 py-2">Nenhuma criatura encontrada.</p>
                 )}
                 {bestiarioResultados.map((m) => (
-                  <div key={m.index} className="flex items-center justify-between gap-1.5 px-1.5 py-1 rounded hover:bg-ink-700 group">
-                    <button onClick={() => addFromMonster(m)} className="flex-1 text-left min-w-0">
-                      <span className="text-sm text-parchment-100">{m.nome}</span>
-                      <span className="block text-[10px] text-parchment-300/40 truncate">
-                        ND {m.nd} · CA {m.ca} · PV {m.pvMedio} · {m.tipoTamanhoAlinhamento}
-                      </span>
-                    </button>
-                    <button
-                      title="Salvar ficha completa na aba de NPCs"
-                      onClick={() => salvarMonstroComoNpc(m)}
-                      className="text-[10px] shrink-0 px-1.5 py-0.5 rounded border border-ink-600 text-parchment-300/50 hover:text-gold-400 hover:border-gold-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      {salvos[m.index] ? "Salvo ✓" : "+ NPC"}
-                    </button>
+                  <div key={m.index} className="rounded hover:bg-ink-700/60">
+                    <div className="flex items-center justify-between gap-1.5 px-1.5 py-1 group">
+                      <button onClick={() => addFromMonster(m)} className="flex-1 text-left min-w-0" title="Adicionar ao combate">
+                        <span className="text-sm text-parchment-100">
+                          {m.fonte === "Rastro Carmim" && <span className="text-gold-400 mr-1">◆</span>}
+                          {m.nome}
+                        </span>
+                        <span className="block text-[10px] text-parchment-300/40 truncate">
+                          ND {m.nd} · CA {m.ca} · PV {m.pvMedio} · {m.fonte === "Rastro Carmim" ? `${m.grupo} — ${m.local}` : m.tipoTamanhoAlinhamento}
+                        </span>
+                      </button>
+                      <button
+                        title="Ver a ficha completa antes de adicionar"
+                        onClick={() => setBestiarioPreview((cur) => (cur === m.index ? null : m.index))}
+                        className={`text-[10px] shrink-0 px-1.5 py-0.5 rounded border transition-colors ${
+                          bestiarioPreview === m.index
+                            ? "border-gold-500 text-gold-400"
+                            : "border-ink-600 text-parchment-300/50 hover:text-gold-400 hover:border-gold-500"
+                        }`}
+                      >
+                        {bestiarioPreview === m.index ? "Fechar" : "Ver"}
+                      </button>
+                      <button
+                        title="Salvar ficha completa na aba de NPCs"
+                        onClick={() => salvarMonstroComoNpc(m)}
+                        className="text-[10px] shrink-0 px-1.5 py-0.5 rounded border border-ink-600 text-parchment-300/50 hover:text-gold-400 hover:border-gold-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        {salvos[m.index] ? "Salvo ✓" : "+ NPC"}
+                      </button>
+                    </div>
+                    {bestiarioPreview === m.index && (
+                      <div className="px-2 pb-2 pt-1 border-t border-ink-700">
+                        <StatBlockDetail data={m} />
+                        <Button variant="gold" className="mt-2 !text-xs !px-2 !py-1" onClick={() => addFromMonster(m)}>
+                          + Adicionar ao combate
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
               <p className="text-[10px] text-parchment-300/30 mt-2 pt-2 border-t border-ink-700">
-                Dados abertos do SRD 5.1 (em inglês). Clique no nome para adicionar direto ao combate.
+                ◆ = criaturas do Rastro Carmim (em português). SRD 5.1 em inglês. Clique no nome para adicionar direto ao combate, ou em “Ver” para conferir a ficha antes.
               </p>
             </div>
           )}
@@ -894,6 +947,23 @@ function StatBlockDetail({ data: n, sheetLink }) {
       <StatBlockList label="Ações" items={n.acoes} />
       <StatBlockList label="Ações Lendárias" items={n.acoesLendarias} />
       <StatBlockList label="Reações" items={n.reacoes} />
+
+      {(n.local || n.baseadoEm) && (
+        <p className="text-[11px] text-parchment-300/50">
+          {n.local && <span>📍 {n.grupo ? `${n.grupo} — ` : ""}{n.local}</span>}
+          {n.local && n.baseadoEm && " · "}
+          {n.baseadoEm && (
+            <span>{/^(Ficha|Criatura|Reaproveita)/.test(n.baseadoEm) ? n.baseadoEm : `baseado em ${n.baseadoEm}`}</span>
+          )}
+        </p>
+      )}
+      {n.descricao && <p className="text-xs text-parchment-200 italic">{n.descricao}</p>}
+      {n.notasMestre && (
+        <div className="rounded border border-ink-700 bg-ink-900/60 p-2">
+          <p className="text-[10px] uppercase tracking-wide text-parchment-300/50 mb-0.5">Notas do Mestre</p>
+          <p className="text-xs text-parchment-200 whitespace-pre-wrap">{n.notasMestre}</p>
+        </div>
+      )}
     </div>
   );
 }
