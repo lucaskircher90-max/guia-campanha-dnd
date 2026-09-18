@@ -148,7 +148,7 @@ export default function Combat() {
       ...prev,
       combatentes: prev.combatentes.map((c) => {
         const source = c.tipo === "pj" ? players.find((p) => p.id === c.sourceId) : npcs.find((n) => n.id === c.sourceId);
-        const dex = source?.atributos?.des ?? 10;
+        const dex = source?.atributos?.des ?? c.statBlock?.atributos?.des ?? 10;
         return { ...c, iniciativa: rollD20() + abilityMod(dex) };
       }),
     }));
@@ -157,7 +157,7 @@ export default function Combat() {
   function salvarEncontroAtual() {
     const combatentesMolde = encounter.combatentes.map((c) => {
       const source = c.tipo === "pj" ? players.find((p) => p.id === c.sourceId) : npcs.find((n) => n.id === c.sourceId);
-      const dex = source?.atributos?.des ?? 10;
+      const dex = source?.atributos?.des ?? c.statBlock?.atributos?.des ?? 10;
       return newEncounterTemplateCombatant({
         nome: c.nome,
         tipo: c.tipo,
@@ -166,6 +166,7 @@ export default function Combat() {
         iniciativaMod: abilityMod(dex),
         notas: c.notas,
         sourceId: c.sourceId,
+        statBlock: c.statBlock || null,
       });
     });
     addEncounterTemplate({
@@ -178,9 +179,27 @@ export default function Combat() {
     setSalvarFormAberto(false);
   }
 
-  function carregarTemplate(template) {
-    const novos = template.combatentes.map((tc) =>
-      newCombatant({
+  async function carregarTemplate(template) {
+    // Encontros salvos antes desta correção não guardaram a ficha: recupera pelo
+    // nome (ignorando sufixos como "2" ou "#3") no bestiário, quando não há NPC vinculado.
+    const precisaBestiario = template.combatentes.some(
+      (tc) => tc.tipo === "npc" && !tc.statBlock && !npcs.some((n) => n.id === tc.sourceId)
+    );
+    let porNome = null;
+    if (precisaBestiario) {
+      const [rc, srd] = await Promise.all([import("../data/rastroCarmim.json"), import("../data/monsters.json")]);
+      porNome = new Map();
+      for (const m of [...srd.default, ...rc.default]) porNome.set(m.nome.toLowerCase(), m);
+    }
+    const achar = (nome) => {
+      if (!porNome) return null;
+      const base = nome.trim().toLowerCase();
+      return porNome.get(base) || porNome.get(base.replace(/\s*[#(]?\d+\)?$/, "")) || null;
+    };
+
+    const novos = template.combatentes.map((tc) => {
+      const semNpc = tc.tipo === "npc" && !npcs.some((n) => n.id === tc.sourceId);
+      return newCombatant({
         nome: tc.nome,
         tipo: tc.tipo,
         ca: tc.ca,
@@ -189,8 +208,9 @@ export default function Combat() {
         iniciativa: rollD20() + (Number(tc.iniciativaMod) || 0),
         notas: tc.notas,
         sourceId: tc.sourceId,
-      })
-    );
+        statBlock: tc.statBlock || (semNpc ? achar(tc.nome) : null),
+      });
+    });
     setEncounter({ id: encounter.id, nome: template.nome, rodada: 1, turnoAtual: 0, combatentes: novos });
     setTemplatesAberto(false);
   }

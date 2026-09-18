@@ -229,6 +229,7 @@ export function newEncounterTemplateCombatant(overrides = {}) {
     iniciativaMod: 0,
     notas: "",
     sourceId: null,
+    statBlock: null,
     ...overrides,
   };
 }
