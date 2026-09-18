@@ -675,5 +675,105 @@
       { "nome": "Porrete", "descricao": "Ataque de Arma Corpo a Corpo: +2 para acertar, alcance 1,5 m, um alvo. Acerto: 2 (1d4) contundente." }
     ],
     "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-rainha-do-ninho",
+    "nome": "Rainha do Ninho",
+    "fonte": "Rastro Carmim",
+    "grupo": "Enxame Noturno — O Ninho Corrompido",
+    "local": "Encontro modular — qualquer beco, cais ou acampamento noturno",
+    "baseadoEm": "Wererat (forma híbrida)",
+    "tipoTamanhoAlinhamento": "Humanoide médio (metamorfo natural), neutro e mau",
+    "descricao": "Algo que não devia estar liderando um ninho de ratos — e não parece mais totalmente humana. Alvo prioritário do encontro.",
+    "ca": 12, "caObs": "", "pvMedio": 33, "pvDados": "6d8+6", "deslocamento": "9 m",
+    "atributos": { "for": 10, "des": 15, "con": 12, "int": 9, "sab": 11, "car": 8 },
+    "salvaguardas": "", "pericias": "Percepção +2, Furtividade +4", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "visão no escuro 18 m, Percepção passiva 12", "idiomas": "entende Comum, mas só se comunica por guinchos", "nd": "2", "pe": 450,
+    "tracos": [
+      { "nome": "Faro Aguçado", "descricao": "A Rainha tem vantagem em testes de Sabedoria (Percepção) que dependam de olfato." },
+      { "nome": "Táticas de Matilha", "descricao": "A Rainha tem vantagem numa jogada de ataque contra uma criatura se pelo menos um aliado dela estiver a 1,5 m do alvo e não estiver incapacitado." },
+      { "nome": "Uivo de Comando", "descricao": "Como ação bônus, a Rainha emite um guincho agudo: todas as criaturas do Ninho a até 9 m dela ganham vantagem no próximo ataque que fizerem antes do início do turno dela de novo." }
+    ],
+    "acoes": [
+      { "nome": "Multiataque", "descricao": "A Rainha faz um ataque de Mordida Infecciosa e um ataque de Espada Curta Roubada." },
+      { "nome": "Mordida Infecciosa", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 4 (1d4+2) perfurante + 2 (1d4) necrótico — a ferida apodrece rápido demais pra ser natural." },
+      { "nome": "Espada Curta Roubada", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 5 (1d6+2) perfurante." }
+    ],
+    "acoesLendarias": [], "reacoes": [],
+    "notasMestre": "Se a Rainha morrer ou fugir, o resto do ninho perde a coordenação — role desvantagem nos ataques dos enxames e morcegos restantes, ou deixe que debandem depois de 1-2 rodadas sem ela.\n\nCOMPOSIÇÃO DO ENCONTRO (5 PJs nível 5, Médio-Difícil): 1× Rainha do Ninho, 3× Enxame de Ratos Corrompidos, 2× Enxame de Morcegos Corrompidos, 5× Morcego Gigante Corrompido — XP base ~950, 11 criaturas (×3) = ~2.850 XP ajustado, entre Médio (2.500) e Difícil (3.750).\n\nCALIBRAGEM: pra baixar, remova a Rainha (cai pra Médio, sem coordenação) ou reduza os Morcegos Gigantes pra 3. Pra subir, adicione uma segunda onda entrando na rodada 2-3 (mais 1 Enxame de Ratos Corrompidos vindo de outra direção), ou dê à Rainha uma reação: “se um aliado a até 3 m dela morrer, ela pode fazer um ataque de Mordida Infecciosa imediato contra quem causou a morte.”"
+  },
+  {
+    "index": "rc-enxame-ratos-corrompidos",
+    "nome": "Enxame de Ratos Corrompidos",
+    "fonte": "Rastro Carmim",
+    "grupo": "Enxame Noturno — O Ninho Corrompido",
+    "local": "Encontro modular — avança pelo chão, cerca os PJs por baixo enquanto os morcegos atacam por cima (use 3)",
+    "baseadoEm": "Enxame de Ratos",
+    "tipoTamanhoAlinhamento": "Enxame de roedores minúsculos, não alinhado",
+    "descricao": "Mesma ficha do Enxame de Ratos Sedentos (Cisterna Antiga, S2), reaproveitada para este ninho.",
+    "ca": 10, "caObs": "", "pvMedio": 24, "pvDados": "7d8-7", "deslocamento": "9 m, escavar 1,5 m",
+    "atributos": { "for": 9, "des": 11, "con": 9, "int": 2, "sab": 10, "car": 3 },
+    "salvaguardas": "", "pericias": "",
+    "resistenciasDano": "contundente, perfurante e cortante de ataques não-mágicos",
+    "imunidadesDano": "", "vulnerabilidadesDano": "",
+    "imunidadesCondicao": "Agarrado, Amedrontado, Atordoado, Caído, Enfeitiçado, Paralisado, Petrificado, Restrito",
+    "sentidos": "visão no escuro 9 m, Percepção passiva 10", "idiomas": "", "nd": "1/4", "pe": 50,
+    "tracos": [
+      { "nome": "Faro Aguçado", "descricao": "O enxame tem vantagem em testes de Sabedoria (Percepção) que dependam de olfato." },
+      { "nome": "Enxame", "descricao": "O enxame pode ocupar o espaço de outra criatura e vice-versa, e sofre dano dobrado de efeitos em área. Não pode recuperar PV nem ganhar PV temporários." }
+    ],
+    "acoes": [
+      { "nome": "Mordidas", "descricao": "Ataque de Arma Corpo a Corpo: +2 para acertar, alcance 0, um alvo no espaço do enxame. Acerto: 5 (2d4) perfurante, ou metade se o enxame estiver com metade dos PV ou menos." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-enxame-morcegos-corrompidos",
+    "nome": "Enxame de Morcegos Corrompidos",
+    "fonte": "Rastro Carmim",
+    "grupo": "Enxame Noturno — O Ninho Corrompido",
+    "local": "Encontro modular — paira acima dos PJs, força quem não tem visão no escuro a lidar com alvos no ar (use 2)",
+    "baseadoEm": "Enxame de Morcegos",
+    "tipoTamanhoAlinhamento": "Enxame de bestas minúsculas",
+    "descricao": "Mesma ficha do Enxame de Morcegos do Sangue Adormecido (Arquivo do Culto, T4), reaproveitada para este ninho.",
+    "ca": 12, "caObs": "", "pvMedio": 22, "pvDados": "5d8", "deslocamento": "1,5 m, voo 9 m",
+    "atributos": { "for": 5, "des": 15, "con": 11, "int": 2, "sab": 12, "car": 4 },
+    "salvaguardas": "", "pericias": "",
+    "resistenciasDano": "contundente, perfurante e cortante de ataques não-mágicos",
+    "imunidadesDano": "", "vulnerabilidadesDano": "",
+    "imunidadesCondicao": "Agarrado, Amedrontado, Atordoado, Caído, Enfeitiçado, Paralisado, Petrificado, Restrito",
+    "sentidos": "visão às cegas 18 m, Percepção passiva 11", "idiomas": "", "nd": "1/4", "pe": 50,
+    "tracos": [
+      { "nome": "Ecolocalização", "descricao": "O enxame não pode usar sua visão às cegas enquanto surdo." },
+      { "nome": "Audição Aguçada", "descricao": "O enxame tem vantagem em testes de Sabedoria (Percepção) que dependam de audição." },
+      { "nome": "Sentinelas Involuntárias", "descricao": "Se perceber os jogadores antes de ser percebido, parte do enxame se destaca e voa — um alarme vivo que pode alertar o resto do ninho antes da emboscada." }
+    ],
+    "acoes": [
+      { "nome": "Mordidas", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 0, um alvo no espaço do enxame. Acerto: 2 (1d4) perfurante, ou metade se o enxame estiver com metade dos PV ou menos." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
+  },
+  {
+    "index": "rc-morcego-gigante-corrompido",
+    "nome": "Morcego Gigante Corrompido",
+    "fonte": "Rastro Carmim",
+    "grupo": "Enxame Noturno — O Ninho Corrompido",
+    "local": "Encontro modular — voa em círculos altos entre rodadas, difícil de alcançar sem alcance ou magia (use 5)",
+    "baseadoEm": "Morcego Gigante",
+    "tipoTamanhoAlinhamento": "Besta média",
+    "descricao": "Assédio aéreo individual — ataca e recua, nunca fica parado no alcance de resposta.",
+    "ca": 13, "caObs": "(armadura natural)", "pvMedio": 22, "pvDados": "4d10", "deslocamento": "3 m, voo 18 m",
+    "atributos": { "for": 15, "des": 16, "con": 11, "int": 2, "sab": 12, "car": 6 },
+    "salvaguardas": "", "pericias": "Percepção +3", "resistenciasDano": "", "imunidadesDano": "", "vulnerabilidadesDano": "", "imunidadesCondicao": "",
+    "sentidos": "visão às cegas 18 m, Percepção passiva 13", "idiomas": "", "nd": "1/4", "pe": 50,
+    "tracos": [
+      { "nome": "Ecolocalização", "descricao": "O morcego não pode usar sua visão às cegas enquanto surdo." },
+      { "nome": "Audição Aguçada", "descricao": "O morcego tem vantagem em testes de Sabedoria (Percepção) que dependam de audição." },
+      { "nome": "Ataque em Mergulho", "descricao": "Se o morcego se mover pelo menos 3 m em linha reta na direção do alvo antes de atacar, o ataque causa +2 (1d4) de dano adicional." }
+    ],
+    "acoes": [
+      { "nome": "Mordida", "descricao": "Ataque de Arma Corpo a Corpo: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 5 (1d6+2) perfurante." }
+    ],
+    "acoesLendarias": [], "reacoes": [], "notasMestre": ""
   }
 ]
