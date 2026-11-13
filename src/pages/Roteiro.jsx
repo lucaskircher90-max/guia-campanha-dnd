@@ -62,7 +62,6 @@ export default function Roteiro() {
     capitulos.find((c) => c.id === ultimo) ||
     capitulos.find((c) => /abertura/i.test(c.titulo)) ||
     capitulos[0];
-  const secAtual = capAtual.secoes.find((s) => s.id === secParam) || capAtual.secoes[0];
   const idxCap = capitulos.findIndex((c) => c.id === capAtual.id);
 
   useEffect(() => {
@@ -73,19 +72,18 @@ export default function Roteiro() {
     }
   }, [capAtual.id]);
 
-  // rola para o topo ao trocar de seção; ou abre e rola até uma ficha pedida
+  // rola até a seção/ficha pedida (ou para o topo ao trocar de capítulo)
   useEffect(() => {
-    const ancora = location.state?.ancora;
-    if (ancora) {
-      const el = document.getElementById(ancora);
+    const alvo = location.state?.ancora || (secParam ? `sec-${secParam}` : null);
+    const t = setTimeout(() => {
+      const el = alvo ? document.getElementById(alvo) : null;
       if (el) {
         if (el.tagName === "DETAILS") el.open = true;
         el.scrollIntoView({ behavior: "smooth", block: "start" });
-        return;
-      }
-    }
-    window.scrollTo({ top: 0 });
-  }, [capAtual.id, secAtual?.id, location.state]);
+      } else window.scrollTo({ top: 0 });
+    }, 30);
+    return () => clearTimeout(t);
+  }, [capAtual.id, secParam, location.state]);
 
   function ir(capId, secId, ancora) {
     navigate(`/roteiro/${capId}${secId ? `/${secId}` : ""}`, { state: ancora ? { ancora, t: Date.now() } : undefined });
@@ -211,28 +209,6 @@ export default function Roteiro() {
           </Button>
         </div>
 
-        {/* Sub-abas: seções do capítulo */}
-        {capAtual.secoes.length > 1 && (
-          <div className="flex flex-wrap gap-1.5" role="tablist">
-            {capAtual.secoes.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                role="tab"
-                aria-selected={s.id === secAtual.id}
-                onClick={() => ir(capAtual.id, s.id)}
-                className={`px-3 py-1.5 rounded text-sm border cursor-pointer ${
-                  s.id === secAtual.id
-                    ? "bg-gold-600 text-ink-950 border-gold-600 font-semibold"
-                    : "bg-ink-800 border-ink-600 text-parchment-200 hover:border-gold-500"
-                }`}
-              >
-                {s.titulo}
-              </button>
-            ))}
-          </div>
-        )}
-
         {/* Fichas do capítulo */}
         {capAtual.fichas.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 text-sm">
@@ -241,7 +217,7 @@ export default function Roteiro() {
               <button
                 key={i}
                 type="button"
-                onClick={() => ir(capAtual.id, f.secao, f.ancora)}
+                onClick={() => ir(capAtual.id, f.secao, f.ancora || `sec-${f.secao}`)}
                 className="px-2 py-1 rounded border border-blood-600 text-parchment-100 hover:bg-blood-600 cursor-pointer"
               >
                 {f.titulo}
@@ -251,18 +227,20 @@ export default function Roteiro() {
         )}
 
         <Card>
-          <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
-            <h3 className="font-display text-lg text-parchment-100">{secAtual.titulo}</h3>
-            <div className="flex gap-1.5">
-              <Button variant="ghost" onClick={() => abrirTodas(true)}>Abrir tudo</Button>
-              <Button variant="ghost" onClick={() => abrirTodas(false)}>Fechar tudo</Button>
-            </div>
+          <div className="flex justify-end gap-1.5 mb-2">
+            <Button variant="ghost" onClick={() => abrirTodas(true)}>Abrir tudo</Button>
+            <Button variant="ghost" onClick={() => abrirTodas(false)}>Fechar tudo</Button>
           </div>
-          <div
-            ref={conteudoRef}
-            className="roteiro-html"
-            dangerouslySetInnerHTML={{ __html: secAtual.html }}
-          />
+          <div ref={conteudoRef} className="roteiro-html">
+            {capAtual.secoes.map((s, i) => (
+              <div key={s.id} id={`sec-${s.id}`} className="scroll-mt-24">
+                {capAtual.secoes.length > 1 && !(i === 0 && s.titulo === "Visão geral") && (
+                  <h3 className="roteiro-secao">{s.titulo}</h3>
+                )}
+                <div dangerouslySetInnerHTML={{ __html: s.html }} />
+              </div>
+            ))}
+          </div>
         </Card>
 
         <Card title="Suas notas deste capítulo">

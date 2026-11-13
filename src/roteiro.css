@@ -50,3 +50,8 @@
   content: "prop"; margin-left: auto; font-family: var(--font-body); font-size: 0.7rem;
   text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-gold-500);
 }
+
+.roteiro-html h3.roteiro-secao {
+  font-family: var(--font-display); color: var(--color-gold-400); font-size: 1.2rem;
+  margin: 2.2rem 0 0.8rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--color-gold-600);
+}
