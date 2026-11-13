@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLocalStorage } from "../lib/useLocalStorage";
+import { useSyncedStorage } from "../lib/useSyncedStorage";
+import { iniciar as iniciarNuvem } from "../lib/nuvem";
 import {
   newPlayerCharacter, newNpc, newMilestone, newEncounter, newItem, newMapEntry, newEncounterTemplate, newTarotCard,
   newLink,
@@ -12,15 +14,16 @@ const LEGACY_TAROT_KEY = "dnd.tarotCards";
 const DataContext = createContext(null);
 
 export function DataProvider({ children }) {
-  const [players, setPlayers] = useLocalStorage("dnd.players", []);
-  const [npcs, setNpcs] = useLocalStorage("dnd.npcs", []);
-  const [milestones, setMilestones] = useLocalStorage("dnd.milestones", []);
+  const [players, setPlayers] = useSyncedStorage("players", []);
+  const [npcs, setNpcs] = useSyncedStorage("npcs", []);
+  const [milestones, setMilestones] = useSyncedStorage("milestones", []);
   const [encounter, setEncounter] = useLocalStorage("dnd.encounter", newEncounter());
-  const [campaign, setCampaign] = useLocalStorage("dnd.campaign", { nome: "Minha Campanha" });
-  const [items, setItems] = useLocalStorage("dnd.items", []);
-  const [maps, setMaps] = useLocalStorage("dnd.maps", []);
-  const [encounterTemplates, setEncounterTemplates] = useLocalStorage("dnd.encounterTemplates", []);
-  const [links, setLinks] = useLocalStorage("dnd.links", []);
+  const [campaign, setCampaign] = useSyncedStorage("campaign", { nome: "Minha Campanha" });
+  const [items, setItems] = useSyncedStorage("items", []);
+  const [maps, setMaps] = useSyncedStorage("maps", []);
+  const [encounterTemplates, setEncounterTemplates] = useSyncedStorage("encounterTemplates", []);
+  const [links, setLinks] = useSyncedStorage("links", []);
+  const [roteiro, setRoteiro] = useSyncedStorage("roteiro", { concluidos: {}, notas: {} });
 
   // Cartas de Tarot: guardadas em IndexedDB (cota bem maior que o
   // localStorage), já que as imagens de um baralho inteiro estouram
@@ -118,6 +121,10 @@ export function DataProvider({ children }) {
       setMilestones((prev) => prev.filter((m) => m.id !== id));
     },
 
+    // Estado do Roteiro (capítulos jogados e notas)
+    roteiro,
+    setRoteiro,
+
     // Combate
     encounter,
     setEncounter,
@@ -213,6 +220,7 @@ export function DataProvider({ children }) {
       encounterTemplates,
       tarotCards,
       links,
+      roteiro,
     }),
     importData: (data) => {
       if (!data || typeof data !== "object") throw new Error("Arquivo inválido.");
@@ -229,11 +237,17 @@ export function DataProvider({ children }) {
         persistTarotWrite(tarotBulkReplace(data.tarotCards));
       }
       if (Array.isArray(data.links)) setLinks(data.links);
+      if (data.roteiro && typeof data.roteiro === "object") setRoteiro(data.roteiro);
     },
   }), [
-    players, npcs, milestones, encounter, campaign, items, maps, encounterTemplates, tarotCards, tarotStorageError, links,
+    players, npcs, milestones, encounter, campaign, items, maps, encounterTemplates, tarotCards, tarotStorageError, links, roteiro, setRoteiro,
     setPlayers, setNpcs, setMilestones, setEncounter, setCampaign, setItems, setMaps, setEncounterTemplates, setLinks,
   ]);
+
+  // Liga a sincronização com a nuvem depois que todas as coleções se registraram.
+  useEffect(() => {
+    iniciarNuvem();
+  }, []);
 
   return <DataContext.Provider value={api}>{children}</DataContext.Provider>;
 }

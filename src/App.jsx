@@ -8,6 +8,7 @@ import NpcsList from "./pages/NpcsList";
 import NpcSheet from "./pages/NpcSheet";
 import NpcGenerator from "./pages/NpcGenerator";
 import Story from "./pages/Story";
+import Roteiro from "./pages/Roteiro";
 import Timeline from "./pages/Timeline";
 import Graph from "./pages/Graph";
 import Combat from "./pages/Combat";
@@ -25,6 +26,9 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/roteiro" element={<Roteiro />} />
+            <Route path="/roteiro/:cap" element={<Roteiro />} />
+            <Route path="/roteiro/:cap/:sec" element={<Roteiro />} />
             <Route path="/jogadores" element={<PlayersList />} />
             <Route path="/jogadores/:id" element={<PlayerSheet />} />
             <Route path="/npcs" element={<NpcsList />} />

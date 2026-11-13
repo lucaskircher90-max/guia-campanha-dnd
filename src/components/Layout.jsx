@@ -1,8 +1,10 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useData } from "../context/DataContext";
+import NuvemStatus from "./NuvemStatus";
 
 const NAV_ITEMS = [
   { to: "/", label: "Painel", end: true },
+  { to: "/roteiro", label: "Roteiro" },
   { to: "/jogadores", label: "Jogadores" },
   { to: "/combate", label: "Combate" },
   { to: "/npcs", label: "NPCs" },
@@ -55,7 +57,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <footer className="text-center text-xs text-parchment-300/40 py-4">
-        Guia da Campanha — dados salvos localmente no seu navegador
+        Guia da Campanha · <NuvemStatus />
       </footer>
     </div>
   );

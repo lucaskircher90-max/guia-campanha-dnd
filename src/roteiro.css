@@ -1,0 +1,52 @@
+/* ===== Aba Roteiro: conteúdo do roteiro em HTML ===== */
+.roteiro-html { font-size: 0.97rem; line-height: 1.6; color: var(--color-parchment-100); }
+.roteiro-html > :first-child { margin-top: 0; }
+.roteiro-html p { margin: 0 0 0.75rem; }
+.roteiro-html strong { color: var(--color-parchment-50); }
+.roteiro-html em { color: var(--color-parchment-200); }
+.roteiro-html a { color: var(--color-gold-400); text-decoration: underline; }
+.roteiro-html ul { list-style: disc; padding-left: 1.4rem; margin: 0 0 0.85rem; }
+.roteiro-html ol { list-style: decimal; padding-left: 1.5rem; margin: 0 0 0.85rem; }
+.roteiro-html li { margin: 0.2rem 0; }
+.roteiro-html hr { border: 0; border-top: 1px solid var(--color-ink-600); margin: 1.2rem 0; }
+.roteiro-html h5, .roteiro-html h6 {
+  font-family: var(--font-display); color: var(--color-gold-400); font-size: 1rem; margin: 1.1rem 0 0.35rem;
+}
+.roteiro-html h5.ficha-nome, .roteiro-html h6.ficha-nome { color: #e6a08f; border-bottom: 1px solid var(--color-blood-600); padding-bottom: 0.2rem; }
+.roteiro-html p.ficha-nome { margin-bottom: 0.25rem; }
+.roteiro-html p.ficha-nome strong { color: #e6a08f; }
+.roteiro-html ul.ficha-box {
+  list-style: none; padding: 0.6rem 0.9rem; margin: 0 0 1rem;
+  background: #2a1d14; border-top: 3px solid var(--color-blood-500); border-bottom: 3px solid var(--color-blood-500);
+  font-size: 0.9rem;
+}
+.roteiro-html ul.ficha-box li { margin: 0.15rem 0; }
+.roteiro-html blockquote {
+  margin: 0.9rem 0; padding: 0.7rem 1rem; font-style: italic;
+  background: rgba(216, 178, 92, 0.08); border-left: 4px solid var(--color-gold-500); border-radius: 0 0.4rem 0.4rem 0;
+  color: var(--color-parchment-50);
+}
+.roteiro-html blockquote p:last-child { margin-bottom: 0; }
+.roteiro-html .tbl { overflow-x: auto; margin: 0.8rem 0 1rem; }
+.roteiro-html table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+.roteiro-html th { background: var(--color-blood-600); color: var(--color-parchment-50); text-align: left; padding: 0.35rem 0.55rem; }
+.roteiro-html td { padding: 0.35rem 0.55rem; border-bottom: 1px solid var(--color-ink-600); vertical-align: top; }
+.roteiro-html tbody tr:nth-child(odd) td { background: rgba(255, 255, 255, 0.025); }
+.roteiro-html details.bloco {
+  margin: 0.8rem 0; border: 1px solid var(--color-ink-600); border-radius: 0.45rem; background: var(--color-ink-900);
+}
+.roteiro-html details.bloco > summary {
+  cursor: pointer; padding: 0.55rem 0.8rem; font-family: var(--font-display); color: var(--color-gold-400);
+  list-style: none; display: flex; align-items: center; gap: 0.5rem;
+}
+.roteiro-html details.bloco > summary::before { content: "▸"; color: var(--color-gold-500); transition: transform 0.15s; }
+.roteiro-html details.bloco[open] > summary::before { transform: rotate(90deg); }
+.roteiro-html details.bloco > summary::-webkit-details-marker { display: none; }
+.roteiro-html details.bloco > .bloco-corpo { padding: 0.2rem 0.9rem 0.6rem; border-top: 1px solid var(--color-ink-600); }
+.roteiro-html details.ficha { border-color: var(--color-blood-600); }
+.roteiro-html details.ficha > summary { color: #e6a08f; }
+.roteiro-html details.prop { border-color: var(--color-gold-600); }
+.roteiro-html details.prop > summary::after {
+  content: "prop"; margin-left: auto; font-family: var(--font-body); font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-gold-500);
+}
