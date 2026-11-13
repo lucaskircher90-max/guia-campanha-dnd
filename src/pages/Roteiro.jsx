@@ -4,6 +4,7 @@ import roteiro from "../data/roteiro.json";
 import "../roteiro.css";
 import { useData } from "../context/DataContext";
 import { Button, Card, TextArea } from "../components/ui";
+import { renderSecaoMd } from "../lib/roteiroRender";
 
 const LS_ULTIMO = "dnd.roteiro.ultimo";
 
@@ -23,6 +24,9 @@ function semAcento(s) {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
+const chaveSecao = (capId, secId) => `${capId}/${secId}`;
+const SEM_EDICOES = {};
+
 export default function Roteiro() {
   const { cap: capParam, sec: secParam } = useParams();
   const navigate = useNavigate();
@@ -30,7 +34,11 @@ export default function Roteiro() {
   const { roteiro: estado, setRoteiro } = useData();
   const [busca, setBusca] = useState("");
   const [menuAberto, setMenuAberto] = useState(false);
+  const [editando, setEditando] = useState(null); // id da seção em edição
+  const [rascunho, setRascunho] = useState("");
   const conteudoRef = useRef(null);
+
+  const edicoes = estado?.edicoes || SEM_EDICOES;
 
   // lista plana de capítulos, na ordem do documento
   const capitulos = useMemo(() => {
@@ -39,16 +47,18 @@ export default function Roteiro() {
     return lista;
   }, []);
 
-  // índice de busca (texto sem acento), montado uma vez
+  // índice de busca (texto sem acento); considera os textos editados
   const indice = useMemo(() => {
     const itens = [];
     for (const c of capitulos)
       for (const s of c.secoes) {
-        const texto = textoPuro(s.html);
+        const ed = edicoes[chaveSecao(c.id, s.id)];
+        const html = ed ? renderSecaoMd(s.id, ed.md).html : s.html;
+        const texto = textoPuro(html);
         itens.push({ cap: c, sec: s, texto, busca: semAcento(texto + " " + s.titulo + " " + c.titulo) });
       }
     return itens;
-  }, [capitulos]);
+  }, [capitulos, edicoes]);
 
   const ultimo = (() => {
     try {
@@ -64,12 +74,36 @@ export default function Roteiro() {
     capitulos[0];
   const idxCap = capitulos.findIndex((c) => c.id === capAtual.id);
 
+  // seções do capítulo com o texto editado aplicado, e a lista de fichas correspondente
+  const { secoes, fichas } = useMemo(() => {
+    const secs = [];
+    const fs = [];
+    for (const s of capAtual.secoes) {
+      const ed = edicoes[chaveSecao(capAtual.id, s.id)];
+      if (ed) {
+        const r = renderSecaoMd(s.id, ed.md);
+        secs.push({ ...s, html: r.html, editada: true });
+        fs.push(...r.fichas);
+      } else {
+        secs.push({ ...s, editada: false });
+        fs.push(...capAtual.fichas.filter((f) => f.secao === s.id));
+      }
+    }
+    return { secoes: secs, fichas: fs };
+  }, [capAtual, edicoes]);
+
+  const previa = useMemo(
+    () => (editando ? renderSecaoMd(editando, rascunho).html : ""),
+    [editando, rascunho]
+  );
+
   useEffect(() => {
     try {
       window.localStorage.setItem(LS_ULTIMO, capAtual.id);
     } catch {
       /* ignora */
     }
+    setEditando(null);
   }, [capAtual.id]);
 
   // rola até a seção/ficha pedida (ou para o topo ao trocar de capítulo)
@@ -104,6 +138,32 @@ export default function Roteiro() {
     });
   }
 
+  // ----- edição -----
+  function comecarEdicao(s) {
+    const ed = edicoes[chaveSecao(capAtual.id, s.id)];
+    setRascunho(ed ? ed.md : s.md);
+    setEditando(s.id);
+  }
+  function salvarEdicao(s) {
+    const k = chaveSecao(capAtual.id, s.id);
+    setRoteiro((prev) => {
+      const novas = { ...(prev.edicoes || {}) };
+      if (rascunho.trim() === s.md.trim()) delete novas[k];
+      else novas[k] = { md: rascunho, em: new Date().toISOString() };
+      return { ...prev, edicoes: novas };
+    });
+    setEditando(null);
+  }
+  function restaurarOriginal(s) {
+    const k = chaveSecao(capAtual.id, s.id);
+    setRoteiro((prev) => {
+      const novas = { ...(prev.edicoes || {}) };
+      delete novas[k];
+      return { ...prev, edicoes: novas };
+    });
+    setEditando(null);
+  }
+
   const resultados = useMemo(() => {
     const q = semAcento(busca.trim());
     if (q.length < 2) return [];
@@ -120,7 +180,6 @@ export default function Roteiro() {
     return achados;
   }, [busca, indice]);
 
-  // agrupa o menu lateral por parte
   const partes = roteiro.partes;
 
   return (
@@ -135,62 +194,62 @@ export default function Roteiro() {
           ☰ Capítulos · <span className="text-gold-400">{capAtual.titulo}</span>
         </button>
         <div className={`${menuAberto ? "flex" : "hidden"} md:flex flex-col gap-3`}>
-        <input
-          type="search"
-          placeholder="Buscar no roteiro (ex.: Voss, CD 13)"
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          className="w-full"
-        />
-        {busca.trim().length >= 2 ? (
-          <div className="flex flex-col gap-1.5">
-            <div className="text-xs text-parchment-300/70">
-              {resultados.length} resultado{resultados.length === 1 ? "" : "s"}
-            </div>
-            {resultados.map((r, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => {
-                  setBusca("");
-                  ir(r.cap.id, r.sec.id);
-                }}
-                className="text-left card p-2 hover:border-gold-500 cursor-pointer"
-              >
-                <div className="text-xs text-gold-400">{r.cap.titulo}</div>
-                <div className="text-sm text-parchment-100">{r.sec.titulo}</div>
-                <div className="text-xs text-parchment-300/70 mt-0.5">{r.trecho}</div>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <nav className="flex flex-col gap-3">
-            {partes.map((p) => (
-              <div key={p.id}>
-                <div className="font-display text-xs text-gold-400 uppercase tracking-wider mb-1">{p.titulo}</div>
-                <ul className="flex flex-col gap-0.5">
-                  {p.capitulos.map((c) => {
-                    const ativo = c.id === capAtual.id;
-                    return (
-                      <li key={c.id}>
-                        <Link
-                          to={`/roteiro/${c.id}`}
-                          onClick={() => setMenuAberto(false)}
-                          className={`flex items-start gap-2 px-2 py-1.5 rounded text-sm ${
-                            ativo ? "bg-blood-600 text-parchment-50" : "text-parchment-200 hover:bg-ink-700"
-                          }`}
-                        >
-                          <span className="w-4 shrink-0 text-gold-400">{concluidos[c.id] ? "✓" : ""}</span>
-                          <span className={concluidos[c.id] && !ativo ? "opacity-60" : ""}>{c.titulo}</span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
+          <input
+            type="search"
+            placeholder="Buscar no roteiro (ex.: Voss, CD 13)"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className="w-full"
+          />
+          {busca.trim().length >= 2 ? (
+            <div className="flex flex-col gap-1.5">
+              <div className="text-xs text-parchment-300/70">
+                {resultados.length} resultado{resultados.length === 1 ? "" : "s"}
               </div>
-            ))}
-          </nav>
-        )}
+              {resultados.map((r, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => {
+                    setBusca("");
+                    ir(r.cap.id, r.sec.id);
+                  }}
+                  className="text-left card p-2 hover:border-gold-500 cursor-pointer"
+                >
+                  <div className="text-xs text-gold-400">{r.cap.titulo}</div>
+                  <div className="text-sm text-parchment-100">{r.sec.titulo}</div>
+                  <div className="text-xs text-parchment-300/70 mt-0.5">{r.trecho}</div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <nav className="flex flex-col gap-3">
+              {partes.map((p) => (
+                <div key={p.id}>
+                  <div className="font-display text-xs text-gold-400 uppercase tracking-wider mb-1">{p.titulo}</div>
+                  <ul className="flex flex-col gap-0.5">
+                    {p.capitulos.map((c) => {
+                      const ativo = c.id === capAtual.id;
+                      return (
+                        <li key={c.id}>
+                          <Link
+                            to={`/roteiro/${c.id}`}
+                            onClick={() => setMenuAberto(false)}
+                            className={`flex items-start gap-2 px-2 py-1.5 rounded text-sm ${
+                              ativo ? "bg-blood-600 text-parchment-50" : "text-parchment-200 hover:bg-ink-700"
+                            }`}
+                          >
+                            <span className="w-4 shrink-0 text-gold-400">{concluidos[c.id] ? "✓" : ""}</span>
+                            <span className={concluidos[c.id] && !ativo ? "opacity-60" : ""}>{c.titulo}</span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </nav>
+          )}
         </div>
       </aside>
 
@@ -210,10 +269,10 @@ export default function Roteiro() {
         </div>
 
         {/* Fichas do capítulo */}
-        {capAtual.fichas.length > 0 && (
+        {fichas.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 text-sm">
             <span className="text-parchment-300/70 text-xs uppercase tracking-wide">Fichas deste capítulo:</span>
-            {capAtual.fichas.map((f, i) => (
+            {fichas.map((f, i) => (
               <button
                 key={i}
                 type="button"
@@ -232,14 +291,53 @@ export default function Roteiro() {
             <Button variant="ghost" onClick={() => abrirTodas(false)}>Fechar tudo</Button>
           </div>
           <div ref={conteudoRef} className="roteiro-html">
-            {capAtual.secoes.map((s, i) => (
-              <div key={s.id} id={`sec-${s.id}`} className="scroll-mt-24">
-                {capAtual.secoes.length > 1 && !(i === 0 && s.titulo === "Visão geral") && (
-                  <h3 className="roteiro-secao">{s.titulo}</h3>
-                )}
-                <div dangerouslySetInnerHTML={{ __html: s.html }} />
-              </div>
-            ))}
+            {secoes.map((s, i) => {
+              const comTitulo = secoes.length > 1 && !(i === 0 && s.titulo === "Visão geral");
+              const emEdicao = editando === s.id;
+              return (
+                <div key={s.id} id={`sec-${s.id}`} className="scroll-mt-24">
+                  <div className={`roteiro-secao-cab ${comTitulo ? "" : "sem-titulo"}`}>
+                    {comTitulo && <h3>{s.titulo}</h3>}
+                    {s.editada && !emEdicao && <span className="roteiro-editado">editado</span>}
+                    {!emEdicao && (
+                      <button type="button" className="roteiro-editar" onClick={() => comecarEdicao(s)}>
+                        ✎ Editar
+                      </button>
+                    )}
+                  </div>
+
+                  {emEdicao ? (
+                    <div className="roteiro-editor">
+                      <div className="roteiro-editor-grid">
+                        <TextArea
+                          value={rascunho}
+                          onChange={setRascunho}
+                          rows={Math.min(34, Math.max(12, rascunho.split("\n").length + 2))}
+                          className="font-mono text-sm leading-relaxed"
+                          spellCheck={false}
+                        />
+                        <div className="roteiro-html roteiro-previa" dangerouslySetInnerHTML={{ __html: previa }} />
+                      </div>
+                      <p className="text-xs text-parchment-300/70 mt-2">
+                        Markdown: <code>**negrito**</code>, <code>*itálico*</code>, <code>&gt; fala em voz alta</code>,{" "}
+                        <code>- lista</code>, <code>#### Título de caixa recolhível</code>. A prévia mostra como fica.
+                      </p>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        <Button variant="gold" onClick={() => salvarEdicao(s)}>Salvar</Button>
+                        <Button variant="ghost" onClick={() => setEditando(null)}>Cancelar</Button>
+                        {s.editada && (
+                          <Button variant="danger" onClick={() => restaurarOriginal(s)}>
+                            Restaurar original
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div dangerouslySetInnerHTML={{ __html: s.html }} />
+                  )}
+                </div>
+              );
+            })}
           </div>
         </Card>
 
@@ -255,10 +353,14 @@ export default function Roteiro() {
         <div className="flex justify-between gap-2">
           {idxCap > 0 ? (
             <Button onClick={() => ir(capitulos[idxCap - 1].id)}>← {capitulos[idxCap - 1].titulo}</Button>
-          ) : <span />}
+          ) : (
+            <span />
+          )}
           {idxCap < capitulos.length - 1 ? (
             <Button onClick={() => ir(capitulos[idxCap + 1].id)}>{capitulos[idxCap + 1].titulo} →</Button>
-          ) : <span />}
+          ) : (
+            <span />
+          )}
         </div>
       </section>
     </div>

@@ -51,7 +51,26 @@
   text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-gold-500);
 }
 
-.roteiro-html h3.roteiro-secao {
-  font-family: var(--font-display); color: var(--color-gold-400); font-size: 1.2rem;
-  margin: 2.2rem 0 0.8rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--color-gold-600);
+.roteiro-secao-cab {
+  display: flex; align-items: flex-end; gap: 0.6rem; margin: 2.2rem 0 0.8rem;
+  padding-bottom: 0.3rem; border-bottom: 1px solid var(--color-gold-600);
+}
+.roteiro-secao-cab h3 {
+  flex: 1; margin: 0; font-family: var(--font-display); color: var(--color-gold-400); font-size: 1.2rem;
+}
+.roteiro-secao-cab.sem-titulo { margin: 0 0 0.4rem; border-bottom: 0; padding-bottom: 0; justify-content: flex-end; }
+.roteiro-editar {
+  font-size: 0.78rem; color: var(--color-parchment-300); background: transparent; border: 1px solid var(--color-ink-600);
+  border-radius: 0.3rem; padding: 0.15rem 0.5rem; cursor: pointer; opacity: 0.55;
+}
+.roteiro-secao-cab:hover .roteiro-editar, .roteiro-editar:focus { opacity: 1; border-color: var(--color-gold-500); color: var(--color-gold-400); }
+.roteiro-editado {
+  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-arcane-400);
+  border: 1px solid var(--color-arcane-500); border-radius: 0.3rem; padding: 0.1rem 0.4rem;
+}
+.roteiro-editor-grid { display: grid; gap: 0.75rem; grid-template-columns: 1fr; }
+@media (min-width: 1024px) { .roteiro-editor-grid { grid-template-columns: 1fr 1fr; } }
+.roteiro-previa {
+  border: 1px solid var(--color-ink-600); border-radius: 0.4rem; padding: 0.6rem 0.8rem;
+  max-height: 70vh; overflow: auto; background: var(--color-ink-900);
 }
